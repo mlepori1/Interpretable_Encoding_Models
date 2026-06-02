@@ -1,6 +1,6 @@
 # Augmented Sparse Encoding Models
 
-Code and data for "Interpreting Neural Responses to Language with Sparse Features from Language Models".
+Code and data for "Interpreting Brain Responses to Language with Sparse Features from Language Models".
 
 The respository is structured as follows:
 
