@@ -57,8 +57,8 @@ def parse_arguments():
             "concrete",
             "easy_to_process",
             "hard_to_process",
-            "ghost",
-            "additional",
+            # "ghost",
+            # "additional",
         ],
     )
 
@@ -86,8 +86,29 @@ def parse_arguments():
     )
 
     parser.add_argument(
+        "--use_Eng1000",
+        default=False,
+        action="store_true",
+        help="Whether to use Eng1000 features instead of model activations. Will error if --use_sae or --use_topic_model is set.",
+    )
+
+    parser.add_argument(
+        "--use_benara2024",
+        default=False,
+        action="store_true",
+        help="Whether to use Benara et al. 2024 QA embedding features instead of model activations. Will error if --use_sae, --use_topic_model, or --use_Eng1000 is set.",
+    )
+
+    parser.add_argument(
+        "--use_zeng_gallant",
+        default=False,
+        action="store_true",
+        help="Whether to use Zeng & Gallant 2025 GloVe-factor features instead of model activations. Will error if --use_sae, --use_topic_model, --use_Eng1000, or --use_benara2024 is set.",
+    )
+
+    parser.add_argument(
         "--sae_release",
-        default="gemma-scope-2b-pt-res-canonical",
+        default="gemma-2-2b-res-matryoshka-dc",
         type=str,
         help="SAE Release",
     )
@@ -245,6 +266,9 @@ def process_participant(args, participant, root_dir):
                 args.sae_release,
                 args.scale_by_decoder,
                 args.use_topic_model,
+                args.use_Eng1000,
+                args.use_benara2024,
+                args.use_zeng_gallant,
             )
             activations = np.array(activations, dtype=np.float32)
             activations = activations[:, args.min_feature_index:args.max_feature_index]
@@ -470,9 +494,9 @@ if __name__ == "__main__":
     # Parse Args
     args = parse_arguments()
 
-    if sum([args.use_sae, args.use_topic_model, args.logprobs_only]) > 1:
+    if sum([args.use_sae, args.use_topic_model, args.logprobs_only, args.use_Eng1000, args.use_benara2024, args.use_zeng_gallant]) > 1:
         raise ValueError(
-            "Only one of --use_sae, --use_topic_model, or --logprobs_only can be set."
+            "Only one of --use_sae, --use_topic_model, --logprobs_only, --use_Eng1000, --use_benara2024, or --use_zeng_gallant can be set."
         )
 
     if args.logprobs_only:
@@ -486,6 +510,12 @@ if __name__ == "__main__":
         featurizer_str = "topic_model"
     elif args.logprobs_only:
         featurizer_str = "logprobs_only"
+    elif args.use_Eng1000:
+        featurizer_str = "eng1000"
+    elif args.use_benara2024:
+        featurizer_str = "benara2024"
+    elif args.use_zeng_gallant:
+        featurizer_str = "zeng_gallant2025"
     else:
         featurizer_str = "hidden_states"
 
@@ -497,7 +527,7 @@ if __name__ == "__main__":
 
     root_dir = os.path.join(
         "..",
-        "results",
+        "results_anon",
         dataset_type_str,
         incl_logprob_str,
         "regressions",

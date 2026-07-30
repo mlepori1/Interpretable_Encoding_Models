@@ -17,6 +17,7 @@ PARTICIPANTS = [
 PALETTE = {
     "Shuffled Control": "lightgray",
     "Surprisal": "dimgray",
+    "Eng1000": "goldenrod",
     "JumpReLU": "dodgerblue",
     "Matryoshka": "skyblue",
     "Residual": "firebrick",
@@ -69,6 +70,7 @@ def build_path(feature_str, dataset="categories", analysis="regression", standar
     Returns:
         Path string to the results directory (not including per-participant subfolder or results.csv)
     """
+    feature_folder = "full_features"
     if feature_str == "Matryoshka":
         sae_or_hidden = "sae"
         sae_release = "gemma-2-2b-res-matryoshka-dc"
@@ -82,8 +84,12 @@ def build_path(feature_str, dataset="categories", analysis="regression", standar
         sae_or_hidden = "logprobs_only"
         layer = 12
         sae_release = ""
+    elif feature_str == "Eng1000":
+        sae_or_hidden = "eng1000"
+        sae_release = ""
+        feature_folder = "content_only"
     else:
-        raise ValueError(f"Unknown feature_str: '{feature_str}'. Expected one of: Matryoshka, JumpReLU, Residual, Log Probabilities")
+        raise ValueError(f"Unknown feature_str: '{feature_str}'. Expected one of: Matryoshka, JumpReLU, Residual, Log Probabilities, Eng1000")
 
     if analysis == "generalization":
         analysis_top_level = "generalization_8000"
@@ -102,7 +108,7 @@ def build_path(feature_str, dataset="categories", analysis="regression", standar
     else:
         control_str = "mean"
 
-    return f"../results/{dataset}/full_features/{analysis_top_level}/{sae_or_hidden}/{sae_release}{feature_idx}/{control_str}/{layer}/{standardized_str}/{analysis_lower_level}"
+    return f"../results_anon/{dataset}/{feature_folder}/{analysis_top_level}/{sae_or_hidden}/{sae_release}{feature_idx}/{control_str}/{layer}/{standardized_str}/{analysis_lower_level}"
 
 
 def load_data(

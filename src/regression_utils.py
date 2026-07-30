@@ -41,10 +41,19 @@ def set_up_datasets(subject, dataset, n):
     return betas, sentences, neuroids, metadata
 
 
-def get_activations(model, layer, embedding_method, use_sae, sae_type=None, scale_by_decoder=False, use_topic_model=False):
+def get_activations(model, layer, embedding_method, use_sae, sae_type=None, scale_by_decoder=False, use_topic_model=False, use_eng1000=False, use_benara2024=False, use_zeng_gallant=False):
     # Load in precomputed features
 
-    if use_topic_model:
+    if use_eng1000:
+        path = f"../features/Eng1000/eng1000.csv"
+        activations = pd.read_csv(path).to_numpy()
+    elif use_benara2024:
+        path = f"../features/benara2024/qa_emb.csv"
+        activations = pd.read_csv(path).to_numpy()
+    elif use_zeng_gallant:
+        path = f"../features/Zeng_Gallant2025/stimset-glove-factor-mean.npy"
+        activations = np.load(path)
+    elif use_topic_model:
         path = f"../features/topic_models/topic_model.csv"
         activations = pd.read_csv(path).drop(columns=["item_id"]).to_numpy()
     else:

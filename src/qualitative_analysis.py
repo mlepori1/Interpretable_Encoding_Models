@@ -6,7 +6,7 @@ then refitting these features using Ridge regression.
 Qualitative Analysis only makes sense for SAE features, so this script does not support residual stream regressions.
 
 For per-participant experiments, run example:
-python run_qualitative_experiment.py --sae_release gemma-2-2b-res-matryoshka-dc -n 10 --per_participant
+python run_qualitative_experiment.py --sae_release gemma-2-2b-res-matryoshka-dc -n 20 --per_participant
 --use_logprobs
 """
 
@@ -51,9 +51,6 @@ def parse_arguments():
         default=[
             "abstract",
             "concrete",
-            "hard_to_process",
-            "easy_to_process",
-            "ghost"
         ],
     )
 
@@ -150,13 +147,29 @@ def parse_arguments():
         help="Suffix for results filename to read, e.g. 'langfroi12345' reads results_langfroi12345.csv",
     )
 
+    parser.add_argument(
+        "--split",
+        default=False,
+        action="store_true",
+        help="Split sentences into two disjoint halves and run the qualitative analysis on each half "
+             "separately, to allow cross-validating qualitative results.",
+    )
+
     args = parser.parse_args()
     return args
 
 
+def get_split_indices(n_samples, seed=42):
+    """Splits sample indices into two disjoint halves for cross-validating qualitative results."""
+    rng = np.random.RandomState(seed)
+    perm = rng.permutation(n_samples)
+    half = n_samples // 2
+    return perm[:half], perm[half:]
+
+
 
 def create_root_dir(args):
-    root_dir = "../results"
+    root_dir = "../results_anon"
 
     langfroi_analysis = any(["langfroi" in ds for ds in args.datasets])
     dataset_type_str = "fROI" if langfroi_analysis else "categories"
@@ -242,9 +255,12 @@ def filter_voxels(args, root_dir):
     return best_predicted
 
 
-def select_features(args, voxel_row, store_selective=False):
-    """This function performs feature selection for a voxel 
-    and reports the selected feature
+def select_features(args, voxel_row, store_selective=False, split_idx=None):
+    """This function performs feature selection for a voxel
+    and reports the selected feature.
+
+    If split_idx is not None (0 or 1), the sentences are restricted to one of two
+    disjoint halves (see get_split_indices) before feature selection and fitting.
     """
 
     # Load Up Activations to feed into classifier
@@ -275,7 +291,13 @@ def select_features(args, voxel_row, store_selective=False):
     if args.use_logprobs:
         activations = np.concatenate([activations, logprobs], axis=1)
         logprob_index = activations.shape[1] - 1  # Index of logprob feature
-    
+
+    if split_idx is not None:
+        split_a, split_b = get_split_indices(activations.shape[0])
+        sample_indices = split_a if split_idx == 0 else split_b
+        activations = activations[sample_indices]
+        betas = betas[sample_indices]
+
     if args.standardize_features:
         scaler = StandardScaler()
         activations = scaler.fit_transform(activations)
@@ -308,11 +330,11 @@ def select_features(args, voxel_row, store_selective=False):
 
     # Indicate whether each feature is used positively or negatively by
     # Ridge Regression
-    sign = np.where(model.coef_ >= 0, 1, -1).astype(int) 
+    sign = np.where(model.coef_ >= 0, 1, -1).astype(int)
     feature_indices = sign * feature_indices
     if store_selective:
         selectivity = voxel_row["language selectivity"]
-        return {
+        result = {
             "neuroid": neuroid,
             "participant": participant,
             "dataset": dataset,
@@ -324,7 +346,7 @@ def select_features(args, voxel_row, store_selective=False):
             "NC Normalized R Fischer": nc_normalized_fischer_correlation
         }
     else:
-        return {
+        result = {
             "neuroid": neuroid,
             "participant": participant,
             "dataset": dataset,
@@ -334,6 +356,11 @@ def select_features(args, voxel_row, store_selective=False):
             "R Fischer": fischer_correlation,
             "NC Normalized R Fischer": nc_normalized_fischer_correlation
         }
+
+    if split_idx is not None:
+        result["split_idx"] = split_idx
+
+    return result
 
 if __name__ == "__main__":
     # Parse Args
@@ -363,8 +390,10 @@ if __name__ == "__main__":
         "NC Normalized R Fischer": [],
         "feature_indices": [],
     }
-    for row_idx, row in tqdm(best_voxels.iterrows(), total=len(best_voxels), desc="Feature selection"):
-        neuroid_results = select_features(args, row)
+    if args.split:
+        results["split_idx"] = []
+
+    def record_result(neuroid_results):
         results["neuroid"].append(neuroid_results["neuroid"])
         results["participant"].append(neuroid_results["participant"])
         results["dataset"].append(neuroid_results["dataset"])
@@ -373,6 +402,15 @@ if __name__ == "__main__":
         results["R Fischer"].append(neuroid_results["R Fischer"])
         results["NC Normalized R Fischer"].append(neuroid_results["NC Normalized R Fischer"])
         results["feature_indices"].append(neuroid_results["feature_indices"])
+        if args.split:
+            results["split_idx"].append(neuroid_results["split_idx"])
+
+    for row_idx, row in tqdm(best_voxels.iterrows(), total=len(best_voxels), desc="Feature selection"):
+        if args.split:
+            for split_idx in (0, 1):
+                record_result(select_features(args, row, split_idx=split_idx))
+        else:
+            record_result(select_features(args, row))
 
     results_df = pd.DataFrame.from_dict(results)
 
@@ -391,10 +429,11 @@ if __name__ == "__main__":
         results_df = pd.concat(meta_dfs, ignore_index=True)
 
     source_suffix = f"_{args.results_suffix}" if args.results_suffix else ""
+    split_suffix = "_split" if args.split else ""
 
     output_dir = os.path.join(root_dir, "qualitative")
     os.makedirs(output_dir, exist_ok=True)
-    output_file = os.path.join(output_dir, f"Qualitative_Analysis_{args.k_best}_{label}{suffix}{source_suffix}.csv")
+    output_file = os.path.join(output_dir, f"Qualitative_Analysis_{args.k_best}_{label}{suffix}{source_suffix}{split_suffix}.csv")
     results_df.to_csv(output_file, index=False)
     print(f"\nSaved results to: {output_file}")
 

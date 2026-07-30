@@ -93,6 +93,7 @@ def predictivity_bar_plot(
     ylim=None,
     layer=12,
     add_control=True,
+    include_eng1000=False,
     meta_basename="langfroi12345",
     filter_set=None,
     results_suffix="_langfroi12345_20260311"
@@ -112,6 +113,7 @@ def predictivity_bar_plot(
         ylim: Optional (ymin, ymax) tuple
         layer: Layer index for build_path
         add_control: Whether to include Shuffled Control bars
+        include_eng1000: Whether to include an Eng1000 bar (plotted right after Surprisal)
         meta_basename: Metadata file basename for fROI merging (passed to load_data)
         filter_set: A list of either datasets or fROIs to include
 
@@ -119,6 +121,8 @@ def predictivity_bar_plot(
         (fig, ax)
     """
     featurizers = ["Surprisal", "JumpReLU", "Matryoshka", "Residual"]
+    if include_eng1000:
+        featurizers.insert(1, "Eng1000")
     if add_control:
         featurizers = ["Shuffled Control"] + featurizers
 
