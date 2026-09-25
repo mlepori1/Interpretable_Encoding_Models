@@ -107,6 +107,13 @@ def parse_arguments():
     )
 
     parser.add_argument(
+        "--use_pca",
+        default=False,
+        action="store_true",
+        help="Whether to use PCA-reduced activations (from train_pca.py) instead of raw model activations. Will error if --use_sae, --use_topic_model, --use_Eng1000, --use_benara2024, or --use_zeng_gallant is set.",
+    )
+
+    parser.add_argument(
         "--sae_release",
         default="gemma-2-2b-res-matryoshka-dc",
         type=str,
@@ -269,6 +276,7 @@ def process_participant(args, participant, root_dir):
                 args.use_Eng1000,
                 args.use_benara2024,
                 args.use_zeng_gallant,
+                args.use_pca,
             )
             activations = np.array(activations, dtype=np.float32)
             activations = activations[:, args.min_feature_index:args.max_feature_index]
@@ -494,9 +502,9 @@ if __name__ == "__main__":
     # Parse Args
     args = parse_arguments()
 
-    if sum([args.use_sae, args.use_topic_model, args.logprobs_only, args.use_Eng1000, args.use_benara2024, args.use_zeng_gallant]) > 1:
+    if sum([args.use_sae, args.use_topic_model, args.logprobs_only, args.use_Eng1000, args.use_benara2024, args.use_zeng_gallant, args.use_pca]) > 1:
         raise ValueError(
-            "Only one of --use_sae, --use_topic_model, --logprobs_only, --use_Eng1000, --use_benara2024, or --use_zeng_gallant can be set."
+            "Only one of --use_sae, --use_topic_model, --logprobs_only, --use_Eng1000, --use_benara2024, --use_zeng_gallant, or --use_pca can be set."
         )
 
     if args.logprobs_only:
@@ -516,6 +524,8 @@ if __name__ == "__main__":
         featurizer_str = "benara2024"
     elif args.use_zeng_gallant:
         featurizer_str = "zeng_gallant2025"
+    elif args.use_pca:
+        featurizer_str = "pca"
     else:
         featurizer_str = "hidden_states"
 

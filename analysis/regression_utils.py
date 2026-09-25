@@ -1033,3 +1033,119 @@ def feature_specificity_analysis(
 
 
     return fig, plot_df
+
+
+# ---------------------------------------------------------------------------
+# Spotlight analysis (see spotlight_analysis.py)
+# ---------------------------------------------------------------------------
+
+SPOTLIGHT_DATASET_MAP = {
+    "ghost_additional": "Additional Ghost Voxels",
+    "abstract": "Abstract",
+    "concrete": "Concrete",
+}
+
+
+def load_spotlight_results(sae_release="gemma-2-2b-res-matryoshka-dc", embedding_method="mean", layer=12, standardized_betas=False, dataset_type="categories"):
+    """Load and concatenate spotlight_analysis.py results across all participants.
+
+    Args:
+        sae_release: SAE release used for the spotlight regression
+        embedding_method: Embedding method used for the spotlight regression
+        layer: Layer index used for the spotlight regression
+        standardized_betas: Whether the spotlight regression standardized betas
+        dataset_type: "categories" or "fROI"
+
+    Returns:
+        DataFrame with one row per (participant, dataset, neuroid).
+    """
+    standardized_str = "standardized_betas" if standardized_betas else "raw"
+    root = f"../results_anon/{dataset_type}/spotlight/sae/{sae_release}/{embedding_method}/{layer}/{standardized_str}/regressions"
+
+    dfs = [pd.read_csv(f"{root}/{participant}/results.csv") for participant in PARTICIPANTS]
+    return pd.concat(dfs, ignore_index=True)
+
+
+def plot_spotlight_direction_density(df, datasets=("ghost_additional", "abstract", "concrete"), figsize=None, dpi=300):
+    """Plot the density (pooled across all participants) of the average number of spotlight
+    features whose Ridge coefficient sign agrees with the specified direction, one subplot per dataset.
+
+    Args:
+        df: DataFrame from load_spotlight_results
+        datasets: Raw dataset names to plot (one subplot each)
+        figsize: Figure size tuple; defaults to (4 * n_datasets, 3.5)
+        dpi: Figure DPI
+
+    Returns:
+        (fig, axes)
+    """
+    n = len(datasets)
+    if figsize is None:
+        figsize = (4 * n, 3.5)
+    fig, axes = plt.subplots(1, n, figsize=figsize, dpi=dpi, sharex=True, sharey=True)
+    if n == 1:
+        axes = [axes]
+
+    n_features = df["Num Features"].iloc[0]
+    xcol = "Average Num Features Agree Direction"
+
+    for ax, dataset in zip(axes, datasets):
+        vals = df.loc[df["dataset"] == dataset, xcol]
+        sns.kdeplot(vals, ax=ax, fill=True, color="steelblue", clip=(0, n_features))
+        ax.axvline(vals.mean(), color="black", linestyle="--", linewidth=1.5, label=f"mean = {vals.mean():.2f}")
+        ax.set_title(SPOTLIGHT_DATASET_MAP.get(dataset, dataset), fontsize=13)
+        ax.set_xlabel("Avg. # Features Agreeing\nwith Direction", fontsize=11)
+        ax.set_xlim(0, n_features)
+        ax.legend(fontsize=9, frameon=False)
+        sns.despine(ax=ax)
+
+    axes[0].set_ylabel("Density", fontsize=12)
+    plt.tight_layout()
+    plt.show()
+
+    return fig, axes
+
+
+def plot_spotlight_direction_vs_predictivity(df, datasets=("ghost_additional", "abstract", "concrete"), ycol="NC Normalized R Fischer", figsize=None, dpi=300):
+    """Scatter (with linear fit) of the average number of spotlight features agreeing with the
+    specified direction vs. predictivity, pooled across participants, one subplot per dataset.
+    Annotates each panel with the Pearson correlation.
+
+    Args:
+        df: DataFrame from load_spotlight_results
+        datasets: Raw dataset names to plot (one subplot each)
+        ycol: Predictivity column to correlate against
+        figsize: Figure size tuple; defaults to (4 * n_datasets, 3.5)
+        dpi: Figure DPI
+
+    Returns:
+        (fig, axes)
+    """
+    n = len(datasets)
+    if figsize is None:
+        figsize = (4 * n, 3.5)
+    fig, axes = plt.subplots(1, n, figsize=figsize, dpi=dpi)
+    if n == 1:
+        axes = [axes]
+
+    xcol = "Average Num Features Agree Direction"
+
+    for ax, dataset in zip(axes, datasets):
+        sub = df.loc[df["dataset"] == dataset, [xcol, ycol]].dropna()
+        r, p = pearsonr(sub[xcol], sub[ycol])
+
+        ax.scatter(sub[xcol], sub[ycol], s=14, alpha=0.5, color="steelblue", edgecolor="black", linewidth=0.4, zorder=3)
+
+        m, b = np.polyfit(sub[xcol], sub[ycol], 1)
+        xs = np.linspace(sub[xcol].min(), sub[xcol].max(), 100)
+        ax.plot(xs, m * xs + b, color="firebrick", linewidth=2, zorder=4)
+
+        ax.set_title(f"{SPOTLIGHT_DATASET_MAP.get(dataset, dataset)}\n$r$={r:.2f}, $p$={p:.2g}", fontsize=12)
+        ax.set_xlabel("Avg. # Features Agreeing\nwith Direction", fontsize=11)
+        sns.despine(ax=ax)
+
+    axes[0].set_ylabel(ycol, fontsize=12)
+    plt.tight_layout()
+    plt.show()
+
+    return fig, axes

@@ -41,7 +41,7 @@ def set_up_datasets(subject, dataset, n):
     return betas, sentences, neuroids, metadata
 
 
-def get_activations(model, layer, embedding_method, use_sae, sae_type=None, scale_by_decoder=False, use_topic_model=False, use_eng1000=False, use_benara2024=False, use_zeng_gallant=False):
+def get_activations(model, layer, embedding_method, use_sae, sae_type=None, scale_by_decoder=False, use_topic_model=False, use_eng1000=False, use_benara2024=False, use_zeng_gallant=False, use_pca=False):
     # Load in precomputed features
 
     if use_eng1000:
@@ -56,6 +56,9 @@ def get_activations(model, layer, embedding_method, use_sae, sae_type=None, scal
     elif use_topic_model:
         path = f"../features/topic_models/topic_model.csv"
         activations = pd.read_csv(path).drop(columns=["item_id"]).to_numpy()
+    elif use_pca:
+        path = f"../features/{model}/pca/{layer}_reduced_activations.pkl"
+        activations = pkl.load(open(path, "rb"))
     else:
         if use_sae:
             assert sae_type is not None
