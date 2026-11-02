@@ -18,3 +18,13 @@ describe how to rebuild the existing Benara et al. comparison features from
 saved answers or regenerate them using pinned model revisions. The generator
 is `src/featurize_qa_emb.py`; its default output matches the existing
 `--use_benara2024` regression input without changing that regression code.
+
+The [Ghost extension reproduction instructions](analysis/ghost_extension_reproduction.md)
+cover the additional-voxel search, participant overlap, anatomical quantification,
+and surface figures, with a standalone notebook and rendered HTML. The notebook
+uses tracked anonymized results and separately supplied surface assets.
+
+The [Natural Stories replication](replications/natural_stories/README.md)
+provides standalone input downloads, Gemma/SAE extraction, story-wise sparse
+encoding, and the four appendix panels. It uses the released de Varda inputs;
+panel D counts five fROIs across nine held-out stories (45 fits).
