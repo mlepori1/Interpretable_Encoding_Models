@@ -23,3 +23,8 @@ The [Ghost extension reproduction instructions](analysis/ghost_extension_reprodu
 cover the additional-voxel search, participant overlap, anatomical quantification,
 and surface figures, with a standalone notebook and rendered HTML. The notebook
 uses tracked anonymized results and separately supplied surface assets.
+
+The [Natural Stories replication](replications/natural_stories/README.md)
+provides standalone input downloads, Gemma/SAE extraction, story-wise sparse
+encoding, and the four appendix panels. It uses the released de Varda inputs;
+panel D counts five fROIs across nine held-out stories (45 fits).

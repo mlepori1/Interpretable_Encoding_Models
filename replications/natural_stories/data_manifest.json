@@ -1,0 +1,82 @@
+{
+  "source_repository": "https://github.com/Andrea-de-Varda/multilingual-models-brain",
+  "source_commit": "a8a4729c11c5846c22453455d9c2fd885f77ea18",
+  "source_subdirectory": "additional_analyses/NaturalStories",
+  "files": [
+    {
+      "path": "transcribed/1.csv",
+      "sha256": "5b12e75d57808b004496f46766f5c209d605e2a08fb71c84dd6455208b1c70e2",
+      "bytes": 19617
+    },
+    {
+      "path": "transcribed/2.csv",
+      "sha256": "ca9c172738c6a190f45d8467ff6e60bdd33d8fa07f9bea5488357cb86e1994ce",
+      "bytes": 17952
+    },
+    {
+      "path": "transcribed/3.csv",
+      "sha256": "b604f501768a4a849aaa12631e42a984f47b5f83cc1d80fc178daecb918a5ea7",
+      "bytes": 19177
+    },
+    {
+      "path": "transcribed/4.csv",
+      "sha256": "35414cb3493602811e398816954961f1770fbd685abc364da51d925c86c94d48",
+      "bytes": 19886
+    },
+    {
+      "path": "transcribed/5.csv",
+      "sha256": "43bc2a23950df02aac22bac5eebe80ed0e588b1d93b89ad44c9b26ba9ae7a153",
+      "bytes": 18261
+    },
+    {
+      "path": "transcribed/6.csv",
+      "sha256": "d7af094f27631d3807d4fcdcba8d37f7ee123bf827cd33d4191bb6ccdaae7aae",
+      "bytes": 20315
+    },
+    {
+      "path": "transcribed/7.csv",
+      "sha256": "d383e9e340d2be7e35628395c34bfc5798612a555e90c4057f3b5ab3a51f8f90",
+      "bytes": 18269
+    },
+    {
+      "path": "transcribed/9.csv",
+      "sha256": "8ccb407ae8d11ab7cbe9ca0d0fdf83ebf1178966a34ed97b45273798f346c03e",
+      "bytes": 19673
+    },
+    {
+      "path": "transcribed/10.csv",
+      "sha256": "7f9c62aca0a1594b3bce8131835faf9369646cbcd8b2daa397b21037f4e1d768",
+      "bytes": 18534
+    },
+    {
+      "path": "response/d_shift_3",
+      "sha256": "39f5b305f8ccab22251035ba6932f138f330f34cebcddf25cdbde2590100f9dc",
+      "bytes": 12553
+    },
+    {
+      "path": "response/d_shift_3_IFGorb",
+      "sha256": "f0e2b806ffc3ddf301c869c4a58b4b51639cf44cb0c01bebe7724a997847a7cd",
+      "bytes": 12553
+    },
+    {
+      "path": "response/d_shift_3_IFG",
+      "sha256": "43b1bed25b41a580f133325ade6d99ef389c18398421547b0097d0b97717f478",
+      "bytes": 12553
+    },
+    {
+      "path": "response/d_shift_3_MFG",
+      "sha256": "a3a289fa4c02cab78ecbb1667660b508f4562a1562b1d92e5a94850ae214b063",
+      "bytes": 12553
+    },
+    {
+      "path": "response/d_shift_3_AntTemp",
+      "sha256": "403eaccd1e43867e7c22fdd30011e4908f4645f3e0b0d630f85611590a9242d4",
+      "bytes": 12553
+    },
+    {
+      "path": "response/d_shift_3_PostTemp",
+      "sha256": "4e664e0a2d5933b5de05c4f78dec8eb5f30f17080e871276fa952aa29bcbe1e3",
+      "bytes": 12553
+    }
+  ]
+}

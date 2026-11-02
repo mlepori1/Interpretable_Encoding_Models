@@ -1,0 +1,9 @@
+-r requirements.txt
+# Optional: needed only to generate Gemma/SAE features, not to fit or plot.
+torch==2.9.1
+transformers==4.57.3
+tokenizers==0.22.2
+sae-lens==6.29.0
+transformer-lens==2.16.1
+huggingface-hub==0.36.0
+safetensors==0.4.5
