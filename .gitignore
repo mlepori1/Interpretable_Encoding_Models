@@ -1,5 +1,6 @@
 data/processed_csvs/
 /.venv-qa-emb/
+/.venv-ghost/
 S7T/processed_plots/**
 S7T/first_pass_processed/
 

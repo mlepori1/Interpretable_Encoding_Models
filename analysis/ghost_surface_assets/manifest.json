@@ -1,0 +1,13 @@
+{
+  "description": "Reference external files for the Ghost fsaverage7 notebook; not bundled. GIFTI serialization may change hashes without changing the vertex arrays.",
+  "vertices_per_hemisphere": 163842,
+  "files": {
+    "lh.Saxe_Dufour2013_LTPJ_fsaverage7_nearest.gii": "add401f8c4c4b05e58b94ac86f1654b9c7d3699800ff4eef0e2118d65d6cc263",
+    "lh.inflated": "ce534434e04bf5cc7de314cad411ea723a34a92c748d0397b08ffa2385d111b2",
+    "lh.sulc": "6ebd903d42cd17b51d84229d641fe10a3b32d839c0a69266b089811df5874d91",
+    "lh.HCP_MMP1_fsaverage.mgz": "8e1f4ace36ecfb1bf9cb92eead553355299e9d3da159f591459d091c428da5c6",
+    "HCP_MMP1_fsaverage.txt": "a5fbc970399138b9f99292156f14b848624483024a6ac253f987a1e30930bd41",
+    "lh.parcels_language_fsaverage_frontal_SN8.gii": "cc394bc43a628178d6964d88fad9e7777dde3ef841a35af0f8e22f49d423c9a6",
+    "lh.parcels_language_fsaverage_REGULARIZED.gii": "d0a6170dc9e01a4543990dcba43446a6071dc9dcb13ca8ef09f8cd4768d3a1f9"
+  }
+}

@@ -1,0 +1,5 @@
+TPJ reference,Voxel set,Inside,Total,Inside (%)
+Probabilistic functional LTPJ,"Well-predicted, non-aligned",20,86,23.25581395348837
+Probabilistic functional LTPJ,Feature direction-aligned,143,178,80.33707865168539
+Anatomical PGi/TPOJ (Glasser),"Well-predicted, non-aligned",10,86,11.627906976744185
+Anatomical PGi/TPOJ (Glasser),Feature direction-aligned,138,178,77.52808988764045
