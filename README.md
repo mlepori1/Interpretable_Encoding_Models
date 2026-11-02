@@ -12,3 +12,9 @@ The respository is structured as follows:
 Examples of calling these scripts to generate results for subtypes or fROIs is found in `src/bash_scripts`
 
 Code for generating figures in the preprint are found in the `analysis` directory.
+
+The [QA-Emb-29 reproduction instructions](features/benara2024/README.md)
+describe how to rebuild the existing Benara et al. comparison features from
+saved answers or regenerate them using pinned model revisions. The generator
+is `src/featurize_qa_emb.py`; its default output matches the existing
+`--use_benara2024` regression input without changing that regression code.
