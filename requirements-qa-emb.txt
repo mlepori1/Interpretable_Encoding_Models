@@ -1,0 +1,11 @@
+# QA generator dependencies; validated with Python 3.10.20.
+# These are the current validation environment versions, not a historical lock.
+numpy==1.26.4
+pandas==2.2.3
+torch==2.9.1
+transformers==4.57.3
+accelerate==1.2.1
+tokenizers==0.22.2
+huggingface-hub==0.36.0
+sentencepiece==0.2.0
+pytest==8.3.4

@@ -1,0 +1,110 @@
+{
+  "baseline": "QA-Emb-29 (frozen transfer)",
+  "created_at_utc": "2026-07-29T16:59:21.705339+00:00",
+  "description": "Fixed questions selected on Benara et al.'s original dataset; no feature selection was performed on this study's responses.",
+  "shape": [
+    200,
+    29
+  ],
+  "dtype": "float32",
+  "row_order": "stimuli.csv row_index",
+  "column_order": "questions.csv feature_index",
+  "aggregation": {
+    "operation": "unscaled arithmetic mean",
+    "config_order": [
+      "mistral_zero_shot",
+      "llama_zero_shot",
+      "llama_five_shot"
+    ],
+    "per_config_values": [
+      0,
+      1
+    ],
+    "final_possible_values": [
+      0.0,
+      0.3333333333333333,
+      0.6666666666666666,
+      1.0
+    ]
+  },
+  "answer_scoring": "Generate one token; 1 iff decoded_token.lower() contains 'yes', else 0.",
+  "upstream": {
+    "repository": "https://github.com/csinva/interpretable-embeddings",
+    "commit": "786ea8195c2236c0275528f2e0beb0fb2dc4e4d8",
+    "implementation_files": [
+      "neuro1/features/qa_embedder.py",
+      "neuro1/features/feature_utils.py",
+      "neuro1/features/questions/v3_boostexamples.json"
+    ]
+  },
+  "configs": {
+    "mistral_zero_shot": {
+      "model_id": "mistralai/Mistral-7B-Instruct-v0.2",
+      "prompt": "<s>[INST]'Input text: {example}\nQuestion: {question}\nAnswer with yes or no, then give an explanation.[/INST]",
+      "prompt_sha256": "b7afe2064aceb70c1f78e143864079ef9772ef5ab91fcbaa56e652dcb4815984",
+      "raw_cache": "raw_answers/mistral_zero_shot.npz",
+      "raw_metadata": {
+        "batch_size": "32",
+        "config_name": "mistral_zero_shot",
+        "do_sample": "false",
+        "max_input_length": "2048",
+        "max_new_tokens": "1",
+        "model_id": "mistralai/Mistral-7B-Instruct-v0.2",
+        "prompt_sha256": "b7afe2064aceb70c1f78e143864079ef9772ef5ab91fcbaa56e652dcb4815984",
+        "questions_sha256": "e30f62cc6fc8cdf01a0fd329424e2e75a0dc143af1635c206b4aaf314cd1623a",
+        "requested_revision": "main",
+        "resolved_revision": "63a8b081895390a26e140280378bc85ec8bce07a",
+        "sentences_sha256": "4d99ffa25d8dceb784e1192151037ffb3cb5dc076046c8a156028ffa2d33d53f",
+        "upstream_commit": "786ea8195c2236c0275528f2e0beb0fb2dc4e4d8"
+      }
+    },
+    "llama_zero_shot": {
+      "model_id": "meta-llama/Meta-Llama-3-8B-Instruct",
+      "prompt": "<|begin_of_text|><|start_header_id|>system<|end_header_id|>\n\nYou are a concise, helpful assistant.<|eot_id|><|start_header_id|>user<|end_header_id|>\n\nInput text: {example}\nQuestion: {question}\nAnswer with yes or no, then give an explanation.<|eot_id|><|start_header_id|>assistant<|end_header_id|>\n\n",
+      "prompt_sha256": "ad3ba8044118ceab744388f887d53560f33a89d6a6f64a21feee9cf45fce1bbd",
+      "raw_cache": "raw_answers/llama_zero_shot.npz",
+      "raw_metadata": {
+        "batch_size": "64",
+        "config_name": "llama_zero_shot",
+        "do_sample": "false",
+        "max_input_length": "2048",
+        "max_new_tokens": "1",
+        "model_id": "meta-llama/Meta-Llama-3-8B-Instruct",
+        "prompt_sha256": "ad3ba8044118ceab744388f887d53560f33a89d6a6f64a21feee9cf45fce1bbd",
+        "questions_sha256": "e30f62cc6fc8cdf01a0fd329424e2e75a0dc143af1635c206b4aaf314cd1623a",
+        "requested_revision": "main",
+        "resolved_revision": "8afb486c1db24fe5011ec46dfbe5b5dccdb575c2",
+        "sentences_sha256": "4d99ffa25d8dceb784e1192151037ffb3cb5dc076046c8a156028ffa2d33d53f",
+        "upstream_commit": "786ea8195c2236c0275528f2e0beb0fb2dc4e4d8"
+      }
+    },
+    "llama_five_shot": {
+      "model_id": "meta-llama/Meta-Llama-3-8B-Instruct",
+      "prompt": "<|begin_of_text|><|start_header_id|>system<|end_header_id|>\n\nYou are a concise, helpful assistant.<|eot_id|><|start_header_id|>user<|end_header_id|>\n\nInput text: and i just kept on laughing because it was so\nQuestion: Does the input mention laughter?\nAnswer with Yes or No.<|eot_id|><|start_header_id|>assistant<|end_header_id|>\n\nYes<|eot_id|><|start_header_id|>user<|end_header_id|>\n\nInput text: what a crazy day things just kept on happening\nQuestion: Is the sentence related to food preparation?\nAnswer with Yes or No.<|eot_id|><|start_header_id|>assistant<|end_header_id|>\n\nNo<|eot_id|><|start_header_id|>user<|end_header_id|>\n\nInput text: i felt like a fly on the wall just waiting for\nQuestion: Does the text use a metaphor or figurative language?\nAnswer with Yes or No.<|eot_id|><|start_header_id|>assistant<|end_header_id|>\n\nYes<|eot_id|><|start_header_id|>user<|end_header_id|>\n\nInput text: he takes too long in there getting the pans from\nQuestion: Is there a reference to sports?\nAnswer with Yes or No.<|eot_id|><|start_header_id|>assistant<|end_header_id|>\n\nNo<|eot_id|><|start_header_id|>user<|end_header_id|>\n\nInput text: was silent and lovely and there was no sound except\nQuestion: Is the sentence expressing confusion or uncertainty?\nAnswer with Yes or No.<|eot_id|><|start_header_id|>assistant<|end_header_id|>\n\nNo<|eot_id|><|start_header_id|>user<|end_header_id|>\n\nInput text: {example}\nQuestion: {question}\nAnswer with Yes or No.<|eot_id|><|start_header_id|>assistant<|end_header_id|>\n\n",
+      "prompt_sha256": "7c315276b24699ec9a4adab196e627a23cc7f2eaf705d88d8437fd51d961dbd3",
+      "raw_cache": "raw_answers/llama_five_shot.npz",
+      "raw_metadata": {
+        "batch_size": "16",
+        "config_name": "llama_five_shot",
+        "do_sample": "false",
+        "max_input_length": "2048",
+        "max_new_tokens": "1",
+        "model_id": "meta-llama/Meta-Llama-3-8B-Instruct",
+        "prompt_sha256": "7c315276b24699ec9a4adab196e627a23cc7f2eaf705d88d8437fd51d961dbd3",
+        "questions_sha256": "e30f62cc6fc8cdf01a0fd329424e2e75a0dc143af1635c206b4aaf314cd1623a",
+        "requested_revision": "main",
+        "resolved_revision": "8afb486c1db24fe5011ec46dfbe5b5dccdb575c2",
+        "sentences_sha256": "4d99ffa25d8dceb784e1192151037ffb3cb5dc076046c8a156028ffa2d33d53f",
+        "upstream_commit": "786ea8195c2236c0275528f2e0beb0fb2dc4e4d8"
+      }
+    }
+  },
+  "checksums": {
+    "questions_csv_sha256": "930f129af478ea0db6aff7b1707ddbbc07db37355bb18c00a840ce4908984b37",
+    "stimuli_csv_sha256": "19054f03813980ee6cc12463c877abfa1a6c76fe0e551771f2ef8b2a6358ac73",
+    "qa_emb_pickle_sha256": "a5431488a0c0e52b79ca064a72e885c8e4a64a347189dde467acd5e60f4b2fc0",
+    "qa_emb_csv_sha256": "19203ba194f73929555337b6315b4a6af4a241fafa9399fc7618cff0f4626495",
+    "matrix_bytes_sha256": "90a2f578f6988c13b35d81790828dd0b7911aba283b3e585632ea07857dde2d2"
+  },
+  "downstream_note": "No normalization or surprisal concatenation was applied. Fit any scaler and encoding model within downstream training folds."
+}

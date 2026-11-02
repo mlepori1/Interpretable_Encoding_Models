@@ -1,0 +1,30 @@
+feature_index,feature_name,question,source_importance_normalized,source_candidate_index
+0,qa_01_skepticism_disbelief,Is the sentence expressing skepticism or disbelief towards something or someone?,1.000,488
+1,qa_02_dialogue,Does the sentence include dialogue?,0.983,112
+2,qa_03_relationship_between_people,Does the sentence describe a relationship between people?,0.924,404
+3,qa_04_specific_object,Does the sentence involve the mention of a specific object or item?,0.900,667
+4,qa_05_specialized_terminology,Does the sentence include technical or specialized terminology?,0.882,113
+5,qa_06_proper_noun,Does the sentence contain a proper noun?,0.861,379
+6,qa_07_planning_organizing,Does the input involve planning or organizing?,0.861,81
+7,qa_08_numerical_information,Does the sentence include numerical information?,0.850,437
+8,qa_09_time_mentioned,Is time mentioned in the input?,0.844,375
+9,qa_10_grammatically_complex,Is the sentence grammatically complex?,0.815,492
+10,qa_11_dialogue_or_directed_thoughts,Does the sentence include dialogue or thoughts directed towards another character?,0.811,436
+11,qa_12_physical_action,Does the sentence describe a physical action?,0.809,102
+12,qa_13_conditional_clause,Does the sentence include a conditional clause?,0.782,429
+13,qa_14_visual_experience,Does the sentence describe a visual experience or scene?,0.771,565
+14,qa_15_philosophical_reflection,Does the input include a philosophical or reflective thought?,0.759,57
+15,qa_16_narrator_movement,Is the sentence conveying the narrator's physical movement or action in detail?,0.749,474
+16,qa_17_physical_sensation,Does the sentence describe a physical sensation?,0.744,103
+17,qa_18_personal_social_values,Does the sentence involve a discussion about personal or social values?,0.739,633
+18,qa_19_specific_time_or_date,Does the sentence reference a specific time or date?,0.719,448
+19,qa_20_existential_query,Does the sentence express a philosophical or existential query or observation?,0.705,420
+20,qa_21_physical_environment,Does the sentence involve a description of physical environment or setting?,0.693,628
+21,qa_22_sensory_experience,Does the input describe a sensory experience?,0.688,18
+22,qa_23_planning_decision_making,Does the sentence involve planning or decision-making?,0.684,442
+23,qa_24_command,Is the sentence a command?,0.682,462
+24,qa_25_specific_sensation,Does the sentence describe a specific sensation or feeling?,0.672,564
+25,qa_26_cultural_reference,Does the sentence contain a cultural reference?,0.667,377
+26,qa_27_dialogue_between_characters,Does the input include dialogue between characters?,0.594,60
+27,qa_28_specific_location_mention,Does the sentence mention a specific location or place?,0.547,671
+28,qa_29_specific_location_reference,Does the sentence reference a specific location or place?,0.545,447
