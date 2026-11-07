@@ -171,30 +171,42 @@ def read_surface_gifti(path):
     return read_gifti_float_array(path)
 
 
+def load_optional_glasser(labels_path, lookup_path, parcel_names, n_vertices=163_842):
+    missing = [path.name for path in (labels_path, lookup_path) if not path.is_file()]
+    if missing:
+        print(
+            "Optional Glasser assets unavailable (" + ", ".join(missing) + "). "
+            "Skipping Glasser surface outlines and file-dependent comparisons; "
+            "primary LTPJ analyses and existing metadata summaries are unchanged."
+        )
+        return None, []
+    labels = read_mgh_labels(labels_path)
+    if labels.shape != (n_vertices,):
+        raise ValueError("Unexpected Glasser surface shape")
+    lookup = pd.read_csv(lookup_path, sep=r"\s+", names=["Parcel ID", "Parcel Name"])
+    parcel_ids = lookup.loc[
+        lookup["Parcel Name"].isin(parcel_names), "Parcel ID"
+    ].astype(int).tolist()
+    return np.isin(labels, parcel_ids), parcel_ids
+
+
 ensure_surface_assets()
 surface_coordinates, surface_faces = read_fs_surface(INFLATED_PATH)
 surface_sulc = read_fs_morph(SULC_PATH)
-glasser_labels = read_mgh_labels(GLASSER_PATH)
 language_sn8_labels = read_surface_gifti(LANGUAGE_SN8_PATH).astype(int)
 language_sn220_labels = read_surface_gifti(LANGUAGE_SN220_PATH).astype(int)
 saxe_ltpj_surface = validate_binary_surface(read_surface_gifti(SAXE_LTPJ_PATH))
 
 assert surface_coordinates.shape == (163_842, 3)
 assert surface_sulc.shape == (163_842,)
-assert glasser_labels.shape == (163_842,)
 assert saxe_ltpj_surface.shape == (163_842,)
 assert int(saxe_ltpj_surface.sum()) == 6_587
 np.testing.assert_array_equal(saxe_ltpj_surface, saxe_ltpj)
 
-glasser_lookup = pd.read_csv(
-    GLASSER_LOOKUP_PATH,
-    sep=r"\s+",
-    names=["Parcel ID", "Parcel Name"],
+glasser_tpj_surface, target_glasser_ids = load_optional_glasser(
+    GLASSER_PATH, GLASSER_LOOKUP_PATH, PGI_TPOJ
 )
-target_glasser_ids = glasser_lookup.loc[
-    glasser_lookup["Parcel Name"].isin(PGI_TPOJ), "Parcel ID"
-].astype(int).tolist()
-glasser_tpj_surface = np.isin(glasser_labels, target_glasser_ids)
+GLASSER_AVAILABLE = glasser_tpj_surface is not None
 
 # Reconstruct the five-parcel surface definition and validate its assignments
 # on the released, selected language-fROI subset (not all surface vertices).
@@ -213,7 +225,8 @@ for participant in PARTICIPANTS:
 assert all(total == exact for _, total, exact in language_checks)
 print("Surface assets loaded; language-parcel assignments match the released language-fROI subset.")
 print("Probabilistic functional LTPJ vertices:", int(saxe_ltpj_surface.sum()))
-print("Glasser supplement labels:", target_glasser_ids)
+if GLASSER_AVAILABLE:
+    print("Glasser supplement labels:", target_glasser_ids)
 '''
             ),
             code(
@@ -278,9 +291,10 @@ for view, geometry in view_geometry.items():
     geometry["saxe_segments"] = mask_boundary_segments(
         saxe_ltpj_surface, view
     )
-    geometry["glasser_segments"] = mask_boundary_segments(
-        glasser_tpj_surface, view
-    )
+    if GLASSER_AVAILABLE:
+        geometry["glasser_segments"] = mask_boundary_segments(
+            glasser_tpj_surface, view
+        )
     geometry["language_segments"] = {
         parcel_id: mask_boundary_segments(
             language_parcel_labels == parcel_id, view
@@ -299,6 +313,8 @@ MARKER_AREA = 24
 def prepare_brain_axis(
     ax, view, reference="saxe", title=None, show_language=True
 ):
+    if reference == "glasser" and not GLASSER_AVAILABLE:
+        raise ValueError("Glasser outlines require the optional Glasser assets")
     geometry = view_geometry[view]
     vertices = geometry["vertices"]
     x_coordinates, y_coordinates = geometry["x"], geometry["y"]
@@ -470,6 +486,7 @@ def add_agreement_colorbar(fig, axes, bounds=None):
 
 
 def save_figure(fig, stem, dpi=350):
+    Path(stem).parent.mkdir(parents=True, exist_ok=True)
     fig.savefig(f"{stem}.png", dpi=dpi, bbox_inches="tight")
     fig.savefig(f"{stem}.pdf", bbox_inches="tight")
     print(f"Saved {Path(stem).name}.png and .pdf")
@@ -633,16 +650,16 @@ save_figure(
 )
 plt.show()
 
-# Option 2: matched alignment contrast under the new and old TPJ references.
-for frame in (core_well_nonaligned, core_aligned):
-    frame["Inside Glasser PGi/TPOJ"] = glasser_tpj_surface[
-        frame["neuroid"].astype(int).to_numpy()
-    ]
-
+# Option 2: add the anatomical comparison only when its assets are available.
 reference_specs = [
     ("Probabilistic\nfunctional LTPJ", "Inside Saxe functional LTPJ"),
-    ("Anatomical PGi/TPOJ\n(Glasser)", "Inside Glasser PGi/TPOJ"),
 ]
+if GLASSER_AVAILABLE:
+    for frame in (core_well_nonaligned, core_aligned):
+        frame["Inside Glasser PGi/TPOJ"] = glasser_tpj_surface[
+            frame["neuroid"].astype(int).to_numpy()
+        ]
+    reference_specs.append(("Anatomical PGi/TPOJ\n(Glasser)", "Inside Glasser PGi/TPOJ"))
 tpj_reference_rows = []
 for reference_label, column in reference_specs:
     for voxel_set, frame in [
@@ -674,67 +691,70 @@ aligned_pct = np.array([
     for _, column in reference_specs
 ])
 
-fig, ax = plt.subplots(figsize=(7.2, 4.2))
-y = np.arange(len(reference_specs))
-bar_height = 0.30
-nonaligned_bars = ax.barh(
-    y + bar_height / 1.7,
-    nonaligned_pct,
-    height=bar_height,
-    color="#7651A3",
-    edgecolor="black",
-    linewidth=1.1,
-    label="Well-predicted, non-aligned",
-    zorder=3,
-)
-aligned_bars = ax.barh(
-    y - bar_height / 1.7,
-    aligned_pct,
-    height=bar_height,
-    color=agreement_cmap(0.86),
-    edgecolor="black",
-    linewidth=1.1,
-    label="Feature direction-aligned",
-    zorder=3,
-)
-for bars, values in [
-    (nonaligned_bars, nonaligned_pct),
-    (aligned_bars, aligned_pct),
-]:
-    for bar, pct in zip(bars, values):
-        ax.text(
-            pct + 1.4,
-            bar.get_y() + bar.get_height() / 2,
-            f"{pct:.1f}%",
-            ha="left",
-            va="center",
-            fontsize=11.5,
-            fontweight="bold",
-        )
-ax.set_yticks(y, reference_labels)
-ax.invert_yaxis()
-ax.set_xlim(0, 100)
-ax.set_xticks(np.arange(0, 101, 20))
-ax.set_xlabel("Percentage of each voxel set located inside TPJ")
-ax.set_title(
-    "TPJ concentration by feature-direction alignment",
-    fontweight="bold",
-    pad=12,
-)
-ax.legend(
-    frameon=False, ncol=2, loc="lower center",
-    bbox_to_anchor=(0.5, -0.38), fontsize=10.5,
-)
-ax.spines[["top", "right", "left"]].set_visible(False)
-ax.tick_params(axis="y", length=0, colors="black")
-ax.tick_params(axis="x", colors="black")
-ax.xaxis.grid(True, linewidth=0.7, alpha=0.25, zorder=0)
-fig.subplots_adjust(left=0.28, right=0.98, top=0.84, bottom=0.25)
-save_figure(
-    fig,
-    FIGURE_DIR / "ghost_tpj_reference_alignment_comparison_2026-09-22",
-)
-plt.show()
+if GLASSER_AVAILABLE:
+    fig, ax = plt.subplots(figsize=(7.2, 4.2))
+    y = np.arange(len(reference_specs))
+    bar_height = 0.30
+    nonaligned_bars = ax.barh(
+        y + bar_height / 1.7,
+        nonaligned_pct,
+        height=bar_height,
+        color="#7651A3",
+        edgecolor="black",
+        linewidth=1.1,
+        label="Well-predicted, non-aligned",
+        zorder=3,
+    )
+    aligned_bars = ax.barh(
+        y - bar_height / 1.7,
+        aligned_pct,
+        height=bar_height,
+        color=agreement_cmap(0.86),
+        edgecolor="black",
+        linewidth=1.1,
+        label="Feature direction-aligned",
+        zorder=3,
+    )
+    for bars, values in [
+        (nonaligned_bars, nonaligned_pct),
+        (aligned_bars, aligned_pct),
+    ]:
+        for bar, pct in zip(bars, values):
+            ax.text(
+                pct + 1.4,
+                bar.get_y() + bar.get_height() / 2,
+                f"{pct:.1f}%",
+                ha="left",
+                va="center",
+                fontsize=11.5,
+                fontweight="bold",
+            )
+    ax.set_yticks(y, reference_labels)
+    ax.invert_yaxis()
+    ax.set_xlim(0, 100)
+    ax.set_xticks(np.arange(0, 101, 20))
+    ax.set_xlabel("Percentage of each voxel set located inside TPJ")
+    ax.set_title(
+        "TPJ concentration by feature-direction alignment",
+        fontweight="bold",
+        pad=12,
+    )
+    ax.legend(
+        frameon=False, ncol=2, loc="lower center",
+        bbox_to_anchor=(0.5, -0.38), fontsize=10.5,
+    )
+    ax.spines[["top", "right", "left"]].set_visible(False)
+    ax.tick_params(axis="y", length=0, colors="black")
+    ax.tick_params(axis="x", colors="black")
+    ax.xaxis.grid(True, linewidth=0.7, alpha=0.25, zorder=0)
+    fig.subplots_adjust(left=0.28, right=0.98, top=0.84, bottom=0.25)
+    save_figure(
+        fig,
+        FIGURE_DIR / "ghost_tpj_reference_alignment_comparison_2026-09-22",
+    )
+    plt.show()
+else:
+    print("Skipping the functional-versus-Glasser comparison plot: optional Glasser assets unavailable.")
 
 # Option 2b: the primary probabilistic functional LTPJ contrast by itself.
 functional_labels = [
@@ -972,41 +992,44 @@ probabilistic functional LTPJ parcel remains the primary anatomical
 quantification."""
             ),
             code(
-                r'''for frame in (core_ghost, core_well_nonaligned, core_aligned):
-    frame["Inside Glasser PGi/TPOJ"] = glasser_tpj_surface[
-        frame["neuroid"].astype(int).to_numpy()
-    ]
+                r'''if GLASSER_AVAILABLE:
+    for frame in (core_ghost, core_well_nonaligned, core_aligned):
+        frame["Inside Glasser PGi/TPOJ"] = glasser_tpj_surface[
+            frame["neuroid"].astype(int).to_numpy()
+        ]
 
-glasser_rows = []
-for label, frame in [
-    ("All additional Ghost candidates", core_ghost),
-    ("Well-predicted but non-aligned", core_well_nonaligned),
-    ("Well-predicted and aligned", core_aligned),
-]:
-    inside = int(frame["Inside Glasser PGi/TPOJ"].sum())
-    glasser_rows.append({
-        "Voxel set": label,
-        "Total": len(frame),
-        "Inside Glasser PGi/TPOJ": inside,
-        "Inside Glasser PGi/TPOJ (%)": 100 * inside / len(frame),
-    })
-glasser_composition = pd.DataFrame(glasser_rows)
-display(
-    glasser_composition.style.format(
-        {"Inside Glasser PGi/TPOJ (%)": "{:.1f}"}
+    glasser_rows = []
+    for label, frame in [
+        ("All additional Ghost candidates", core_ghost),
+        ("Well-predicted but non-aligned", core_well_nonaligned),
+        ("Well-predicted and aligned", core_aligned),
+    ]:
+        inside = int(frame["Inside Glasser PGi/TPOJ"].sum())
+        glasser_rows.append({
+            "Voxel set": label,
+            "Total": len(frame),
+            "Inside Glasser PGi/TPOJ": inside,
+            "Inside Glasser PGi/TPOJ (%)": 100 * inside / len(frame),
+        })
+    glasser_composition = pd.DataFrame(glasser_rows)
+    display(
+        glasser_composition.style.format(
+            {"Inside Glasser PGi/TPOJ (%)": "{:.1f}"}
+        )
     )
-)
 
-glasser_surface_stem = (
-    FIGURE_DIR
-    / "ghost_surface_agreement_plasma_"
-      "glasser_pgi_tpoj_supplement_2026-09-22"
-)
-make_group_surface(
-    "glasser",
-    "Supplement: anatomical PGi/TPOJ reference",
-    glasser_surface_stem,
-)
+    glasser_surface_stem = (
+        FIGURE_DIR
+        / "ghost_surface_agreement_plasma_"
+          "glasser_pgi_tpoj_supplement_2026-09-22"
+    )
+    make_group_surface(
+        "glasser",
+        "Supplement: anatomical PGi/TPOJ reference",
+        glasser_surface_stem,
+    )
+else:
+    print("Skipping the Glasser surface supplement and surface-based table: optional Glasser assets unavailable.")
 '''
             ),
             markdown(

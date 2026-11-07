@@ -1,6 +1,13 @@
 {
-  "description": "Reference external files for the Ghost fsaverage7 notebook; not bundled. GIFTI serialization may change hashes without changing the vertex arrays.",
+  "description": "Reference files for the Ghost fsaverage7 notebook. The three main-figure parcel GIFTIs are bundled; the mesh/shading download automatically, and Glasser is optional. GIFTI serialization may change hashes without changing vertex arrays.",
   "vertices_per_hemisphere": 163842,
+  "bundled": [
+    "lh.Saxe_Dufour2013_LTPJ_fsaverage7_nearest.gii",
+    "lh.parcels_language_fsaverage_frontal_SN8.gii",
+    "lh.parcels_language_fsaverage_REGULARIZED.gii"
+  ],
+  "automatic_downloads": ["lh.inflated", "lh.sulc"],
+  "optional_glasser_supplement": ["lh.HCP_MMP1_fsaverage.mgz", "HCP_MMP1_fsaverage.txt"],
   "files": {
     "lh.Saxe_Dufour2013_LTPJ_fsaverage7_nearest.gii": "add401f8c4c4b05e58b94ac86f1654b9c7d3699800ff4eef0e2118d65d6cc263",
     "lh.inflated": "ce534434e04bf5cc7de314cad411ea723a34a92c748d0397b08ffa2385d111b2",

@@ -22,7 +22,9 @@ is `src/featurize_qa_emb.py`; its default output matches the existing
 The [Ghost extension reproduction instructions](analysis/ghost_extension_reproduction.md)
 cover the additional-voxel search, participant overlap, anatomical quantification,
 and surface figures, with a standalone notebook and rendered HTML. The notebook
-uses tracked anonymized results and separately supplied surface assets.
+uses tracked anonymized results. The main-figure LTPJ and language parcels are
+included; mesh/shading files download automatically, and Glasser surface
+supplements are optional.
 
 The [Natural Stories replication](replications/natural_stories/README.md)
 provides standalone input downloads, Gemma/SAE extraction, story-wise sparse

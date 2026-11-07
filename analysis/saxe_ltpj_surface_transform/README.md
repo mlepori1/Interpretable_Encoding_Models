@@ -62,9 +62,12 @@ rh.LTPJ_xyz_fsaverage_linear_164k.gii
 
 ## Use the surface mask in the Ghost notebook
 
-Copy the nearest-neighbor left-hemisphere output into this repository as
-`analysis/ghost_surface_assets/lh.Saxe_Dufour2013_LTPJ_fsaverage7_nearest.gii`,
-or into the directory specified by `GHOST_SURFACE_ASSET_DIR` with that name.
+The exact nearest-neighbor left-hemisphere output used by the figure is now
+included as
+`analysis/ghost_surface_assets/lh.Saxe_Dufour2013_LTPJ_fsaverage7_nearest.gii`.
+No transformation is needed to execute the notebook. When independently
+regenerating the parcel, use that filename in your own asset directory and
+point `GHOST_SURFACE_ASSET_DIR` to it for comparison.
 Each hemisphere has 163,842 vertices. The primary left mask has 6,587 nonzero
 vertices; the right mask has none. An independent rerun of this transformation
 matched all four saved surface arrays exactly.

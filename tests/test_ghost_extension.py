@@ -7,11 +7,13 @@ import xml.etree.ElementTree as ET
 import zlib
 
 import numpy as np
+import pandas as pd
 import pytest
 
 
 ROOT = Path(__file__).resolve().parents[1]
 BUILDER = ROOT / "analysis/build_ghost_spotlight_extension_notebook.py"
+SURFACE_BUILDER = ROOT / "analysis/update_ghost_surface_notebook_2026_09_22.py"
 
 
 def embedded_code_cells(path):
@@ -127,3 +129,127 @@ def test_public_builder_sources_compile_and_omit_private_paths():
         assert "/n/holylabs/" not in source
         for cell in embedded_code_cells(path):
             compile(cell, str(path), "exec")
+
+
+@pytest.fixture
+def optional_glasser_loader():
+    definition = next(
+        node
+        for source in embedded_code_cells(SURFACE_BUILDER)
+        for node in ast.parse(source).body
+        if isinstance(node, ast.FunctionDef) and node.name == "load_optional_glasser"
+    )
+    namespace = {"np": np, "pd": pd}
+    module = ast.Module(body=[definition], type_ignores=[])
+    exec(compile(ast.fix_missing_locations(module), str(SURFACE_BUILDER), "exec"), namespace)
+    return namespace
+
+
+@pytest.mark.parametrize("existing", [(), ("labels.mgz",), ("lookup.txt",)])
+def test_missing_glasser_assets_are_optional(tmp_path, optional_glasser_loader, capsys, existing):
+    for name in existing:
+        (tmp_path / name).write_text("placeholder")
+    optional_glasser_loader["read_mgh_labels"] = lambda path: pytest.fail("Missing asset pair was loaded")
+    surface, ids = optional_glasser_loader["load_optional_glasser"](
+        tmp_path / "labels.mgz", tmp_path / "lookup.txt", ["PGi", "TPOJ1"], 4
+    )
+    assert surface is None and ids == []
+    assert "primary LTPJ analyses" in capsys.readouterr().out
+
+
+def test_available_glasser_keeps_original_mask_calculation(tmp_path, optional_glasser_loader):
+    labels = np.array([1, 2, 3, 2])
+    labels_path, lookup_path = tmp_path / "labels.mgz", tmp_path / "lookup.txt"
+    labels_path.write_text("reader stub")
+    lookup_path.write_text("1 other\n2 PGi\n3 TPOJ1\n")
+    optional_glasser_loader["read_mgh_labels"] = lambda path: labels
+    surface, ids = optional_glasser_loader["load_optional_glasser"](
+        labels_path, lookup_path, ["PGi", "TPOJ1"], 4
+    )
+    assert ids == [2, 3]
+    np.testing.assert_array_equal(surface, np.isin(labels, ids))
+    with pytest.raises(ValueError, match="shape"):
+        optional_glasser_loader["load_optional_glasser"](
+            labels_path, lookup_path, ["PGi", "TPOJ1"], 5
+        )
+
+
+def test_save_figure_creates_missing_parent_directory(tmp_path):
+    definition = next(
+        node
+        for source in embedded_code_cells(SURFACE_BUILDER)
+        for node in ast.parse(source).body
+        if isinstance(node, ast.FunctionDef) and node.name == "save_figure"
+    )
+    namespace = {"Path": Path}
+    module = ast.Module(body=[definition], type_ignores=[])
+    exec(compile(ast.fix_missing_locations(module), str(SURFACE_BUILDER), "exec"), namespace)
+    saved = []
+
+    class FigureStub:
+        def savefig(self, filename, **kwargs):
+            assert Path(filename).parent.is_dir()
+            saved.append(Path(filename).suffix)
+
+    stem = tmp_path / "new" / "figures" / "example"
+    assert not stem.parent.exists()
+    namespace["save_figure"](FigureStub(), stem)
+    assert stem.parent.is_dir()
+    assert saved == [".png", ".pdf"]
+
+
+@pytest.mark.parametrize("glasser_available", [False, True])
+def test_primary_bars_render_without_glasser(tmp_path, monkeypatch, capsys, glasser_available):
+    # Run only the lightweight quantification cells on tiny synthetic data.
+    # CSV/figure writes are stubbed; no notebook, data, or surface assets are changed.
+    import matplotlib
+    matplotlib.use("Agg")
+    import matplotlib.pyplot as plt
+
+    nonaligned = pd.DataFrame({
+        "neuroid": [0, 1], "Participant": ["p1", "p2"],
+        "Inside Saxe functional LTPJ": [False, True],
+    })
+    aligned = pd.DataFrame({
+        "neuroid": [2, 3], "Participant": ["p1", "p2"],
+        "Inside Saxe functional LTPJ": [True, True],
+    })
+    saved = []
+
+    def save_figure(fig, stem, **kwargs):
+        saved.append(Path(stem).name)
+        plt.close(fig)
+
+    monkeypatch.setattr(pd.DataFrame, "to_csv", lambda *args, **kwargs: None)
+    monkeypatch.setattr(plt, "show", lambda: None)
+    namespace = {
+        "pd": pd, "np": np, "plt": plt, "REPO_ROOT": tmp_path,
+        "core_ghost": pd.concat([nonaligned, aligned], ignore_index=True),
+        "core_well_nonaligned": nonaligned, "core_aligned": aligned,
+        "ANATOMY_PARTICIPANTS": ["p1", "p2"],
+        "GLASSER_AVAILABLE": glasser_available,
+        "glasser_tpj_surface": np.array([False, True, True, False]) if glasser_available else None,
+        "agreement_cmap": plt.get_cmap("plasma"), "save_figure": save_figure,
+        "display": lambda value: None,
+    }
+    cells = list(embedded_code_cells(SURFACE_BUILDER))
+    quantification = next(source for source in cells if source.startswith("FIGURE_DIR ="))
+    exec(compile(quantification, "primary_quantification_cell", "exec"), namespace)
+    np.testing.assert_array_equal(namespace["functional_pct"], [50, 100])
+    assert len(namespace["tpj_reference_quantification"]) == (4 if glasser_available else 2)
+    for stem in [
+        "ghost_functional_ltpj_quantification_bar_2026-09-22",
+        "ghost_probabilistic_functional_ltpj_alignment_horizontal_2026-09-22",
+        "ghost_probabilistic_functional_ltpj_alignment_vertical_2026-09-22",
+        "ghost_functional_ltpj_quantification_participants_2026-09-22",
+    ]:
+        assert stem in saved
+    assert ("ghost_tpj_reference_alignment_comparison_2026-09-22" in saved) == glasser_available
+
+    surfaces = []
+    namespace["make_group_surface"] = lambda *args: surfaces.append(args[0])
+    supplement = next(source for source in cells if source.startswith("if GLASSER_AVAILABLE:"))
+    exec(compile(supplement, "glasser_supplement_cell", "exec"), namespace)
+    assert surfaces == (["glasser"] if glasser_available else [])
+    if not glasser_available:
+        assert "Skipping the Glasser surface supplement" in capsys.readouterr().out

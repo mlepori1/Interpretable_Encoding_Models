@@ -4,9 +4,10 @@ The [dated notebook](ghost_spotlight_extension_2026-09-22.ipynb) reproduces
 selection, anatomical quantification, and surface figures for the additional
 Ghost voxel search. Its [HTML export](ghost_spotlight_extension_2026-09-22.html)
 contains the saved tables and figures. This is postprocessing of the tracked
-regression results, not a new regression run. The notebook uses this repository
-alone, plus the external surface assets listed below; no private participant
-metadata or sibling analysis repository is needed.
+regression results, not a new regression run. The main-figure parcels are
+included, and the brain mesh and sulcal shading download automatically on
+first execution. No private participant metadata or sibling analysis
+repository is needed. Glasser surface files are optional supplements.
 
 ## Analysis definitions
 
@@ -76,21 +77,25 @@ source .venv-ghost/bin/activate
 python -m pip install -r analysis/requirements-ghost.txt
 ```
 
-Place the external masks and mesh files in `analysis/ghost_surface_assets/`,
-or set `GHOST_SURFACE_ASSET_DIR` to their directory. The exact filenames and
-reference SHA-256 hashes are in
-[`ghost_surface_assets/manifest.json`](ghost_surface_assets/manifest.json).
-These external assets are not bundled in this commit.
+The three main-figure parcel files are included in `analysis/ghost_surface_assets/`:
+the functional LTPJ mask and the two language-parcel surfaces. See the
+[parcel provenance](ghost_surface_assets/README.md) and
+[reference SHA-256 hashes](ghost_surface_assets/manifest.json).
 
-- The primary LTPJ mask is required for both numerical anatomy and surface
-  figures. Obtain the source MNI volume from the Saxe Lab group maps and follow
-  the [canonical neuromaps transform instructions](saxe_ltpj_surface_transform/README.md).
-- The Glasser label volume and lookup table provide the anatomical supplement.
-- The SN8 frontal language surface supplies parcels 1, 2, and 3, and the SN220
-  surface supplies parcels 4 and 5, as encoded
-  and checked in the notebook. Use the exact reference files in the manifest.
-- Missing `lh.inflated` and `lh.sulc` are downloaded from the NSD fsaverage
-  release by the notebook. The other assets must be provided beforehand.
+- The LTPJ mask supports both numerical anatomy and surface outlines. The
+  [canonical neuromaps transform instructions](saxe_ltpj_surface_transform/README.md)
+  describe how to regenerate it; transformation is not required to run the notebook.
+- The study's SN8-named frontal surface supplies parcels 1, 2, and 3; the
+  regularized SN220 surface supplies parcels 4 and 5.
+- Missing `lh.inflated` and `lh.sulc` download from the NSD fsaverage release.
+  First execution therefore requires internet access unless they are supplied.
+- Glasser is not part of the main figure. To enable its optional surface
+  supplement, supply `lh.HCP_MMP1_fsaverage.mgz` and `HCP_MMP1_fsaverage.txt`.
+  Otherwise those surface-dependent supplements are skipped. Metadata-derived
+  PGi/TPOJ tables do not require these files.
+
+`GHOST_SURFACE_ASSET_DIR` can override the asset directory; an override must
+contain the three required parcel files as well as any optional assets.
 
 ## Run the notebook
 
@@ -120,6 +125,13 @@ the filenames identifies this analysis snapshot, not the execution date.
 The public port preserves the selection thresholds and fitted models. Its
 verification re-executes postprocessing against saved regressions rather than
 refitting all 1,490 voxels.
+
+A clean-input execution using only tracked inputs and the three bundled
+parcels downloaded the mesh/shading automatically and completed without
+Glasser. Its main, participant, and original-cluster maps and LTPJ bar plots
+matched the corresponding full-asset PNGs byte-for-byte; anatomical counts
+were unchanged. The saved notebook/HTML retain the optional Glasser outputs
+from a separate execution with those supplemental files available.
 
 Run `python -m pytest -q tests/test_ghost_extension.py` for the offline checks
 of surface-array formats, binary masks, vertex-index bounds, and inline
