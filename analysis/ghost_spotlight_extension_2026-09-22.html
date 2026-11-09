@@ -8296,7 +8296,9 @@ either threshold; only the second row includes all eight participants. Both
 comparison groups are well predicted: aligned voxels meet the agreement
 threshold, and non-aligned voxels fall below it. Changing that threshold also
 changes the comparison group. Each fraction is the number inside functional
-LTPJ divided by the total in that voxel set. Counts pool participant–vertex
+LTPJ divided by the total in that voxel set. Both percentages describe voxels
+inside LTPJ, but in different groups; they do not sum to 100%.
+Counts pool participant–vertex
 observations, not unique vertices or participant-wise percentages.</p>
 <p>The second table reports all eight participants at the original thresholds,
 including participants with no aligned voxels. An em dash means the denominator
@@ -8400,11 +8402,11 @@ participant.</p>
     <span class="s2">"NC-normalized r ≥"</span><span class="p">:</span> <span class="n">ltpj_threshold_sensitivity</span><span class="p">[</span><span class="s2">"nc_normalized_r_threshold"</span><span class="p">],</span>
     <span class="s2">"Mean agreement ≥ (of 10)"</span><span class="p">:</span> <span class="n">ltpj_threshold_sensitivity</span><span class="p">[</span><span class="s2">"mean_direction_agreement_threshold"</span><span class="p">],</span>
     <span class="s2">"Participant cohort"</span><span class="p">:</span> <span class="n">ltpj_threshold_sensitivity</span><span class="p">[</span><span class="s2">"participants"</span><span class="p">]</span><span class="o">.</span><span class="n">str</span><span class="o">.</span><span class="n">upper</span><span class="p">()</span><span class="o">.</span><span class="n">str</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">";"</span><span class="p">,</span> <span class="s2">", "</span><span class="p">),</span>
-    <span class="s2">"Aligned in LTPJ, n/N (%)"</span><span class="p">:</span> <span class="p">[</span>
+    <span class="s2">"At/above agreement cutoff: in LTPJ, n/N (%)"</span><span class="p">:</span> <span class="p">[</span>
         <span class="n">consistency_ltpj_fraction</span><span class="p">(</span><span class="n">row</span><span class="o">.</span><span class="n">aligned_ltpj_count</span><span class="p">,</span> <span class="n">row</span><span class="o">.</span><span class="n">aligned_count</span><span class="p">)</span>
         <span class="k">for</span> <span class="n">row</span> <span class="ow">in</span> <span class="n">ltpj_threshold_sensitivity</span><span class="o">.</span><span class="n">itertuples</span><span class="p">()</span>
     <span class="p">],</span>
-    <span class="s2">"Well-predicted non-aligned in LTPJ, n/N (%)"</span><span class="p">:</span> <span class="p">[</span>
+    <span class="s2">"Below agreement cutoff: in LTPJ, n/N (%)"</span><span class="p">:</span> <span class="p">[</span>
         <span class="n">consistency_ltpj_fraction</span><span class="p">(</span><span class="n">row</span><span class="o">.</span><span class="n">well_predicted_nonaligned_ltpj_count</span><span class="p">,</span> <span class="n">row</span><span class="o">.</span><span class="n">well_predicted_nonaligned_count</span><span class="p">)</span>
         <span class="k">for</span> <span class="n">row</span> <span class="ow">in</span> <span class="n">ltpj_threshold_sensitivity</span><span class="o">.</span><span class="n">itertuples</span><span class="p">()</span>
     <span class="p">],</span>
@@ -8459,8 +8461,8 @@ participant.</p>
 <th class="col_heading level0 col1" id="T_3f35f_level0_col1">NC-normalized r ≥</th>
 <th class="col_heading level0 col2" id="T_3f35f_level0_col2">Mean agreement ≥ (of 10)</th>
 <th class="col_heading level0 col3" id="T_3f35f_level0_col3">Participant cohort</th>
-<th class="col_heading level0 col4" id="T_3f35f_level0_col4">Aligned in LTPJ, n/N (%)</th>
-<th class="col_heading level0 col5" id="T_3f35f_level0_col5">Well-predicted non-aligned in LTPJ, n/N (%)</th>
+<th class="col_heading level0 col4" id="T_3f35f_level0_col4">At/above agreement cutoff: in LTPJ, n/N (%)</th>
+<th class="col_heading level0 col5" id="T_3f35f_level0_col5">Below agreement cutoff: in LTPJ, n/N (%)</th>
 </tr>
 </thead>
 <tbody>

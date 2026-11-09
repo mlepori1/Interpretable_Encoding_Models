@@ -496,7 +496,9 @@ either threshold; only the second row includes all eight participants. Both
 comparison groups are well predicted: aligned voxels meet the agreement
 threshold, and non-aligned voxels fall below it. Changing that threshold also
 changes the comparison group. Each fraction is the number inside functional
-LTPJ divided by the total in that voxel set. Counts pool participant–vertex
+LTPJ divided by the total in that voxel set. Both percentages describe voxels
+inside LTPJ, but in different groups; they do not sum to 100%.
+Counts pool participant–vertex
 observations, not unique vertices or participant-wise percentages.
 
 The second table reports all eight participants at the original thresholds,
@@ -594,11 +596,11 @@ sensitivity_display = pd.DataFrame({
     "NC-normalized r ≥": ltpj_threshold_sensitivity["nc_normalized_r_threshold"],
     "Mean agreement ≥ (of 10)": ltpj_threshold_sensitivity["mean_direction_agreement_threshold"],
     "Participant cohort": ltpj_threshold_sensitivity["participants"].str.upper().str.replace(";", ", "),
-    "Aligned in LTPJ, n/N (%)": [
+    "At/above agreement cutoff: in LTPJ, n/N (%)": [
         consistency_ltpj_fraction(row.aligned_ltpj_count, row.aligned_count)
         for row in ltpj_threshold_sensitivity.itertuples()
     ],
-    "Well-predicted non-aligned in LTPJ, n/N (%)": [
+    "Below agreement cutoff: in LTPJ, n/N (%)": [
         consistency_ltpj_fraction(row.well_predicted_nonaligned_ltpj_count, row.well_predicted_nonaligned_count)
         for row in ltpj_threshold_sensitivity.itertuples()
     ],

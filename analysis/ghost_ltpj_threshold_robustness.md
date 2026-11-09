@@ -4,9 +4,11 @@
 
 Both groups contain well-predicted voxels. Each fraction reports the number
 inside the functional LTPJ parcel divided by the total number in that group.
+Both percentages describe voxels inside LTPJ, but in different groups; they
+do not sum to 100%.
 Direction agreement is averaged across the five cross-validation folds.
 
-| Analysis | NC-normalized r ≥ | Direction agreement ≥ | Participants | Aligned in LTPJ, n/N (%) | Non-aligned in LTPJ, n/N (%) |
+| Analysis | NC-normalized r ≥ | Direction agreement ≥ | Participants | At/above agreement cutoff: in LTPJ, n/N (%) | Below agreement cutoff: in LTPJ, n/N (%) |
 |---|---:|---:|---|---:|---:|
 | Original | 0.5 | 7/10 | Original five | 143/178 (80.3%) | 20/86 (23.3%) |
 | No participant exclusion | 0.5 | 7/10 | All eight | 143/181 (79.0%) | 25/94 (26.6%) |
