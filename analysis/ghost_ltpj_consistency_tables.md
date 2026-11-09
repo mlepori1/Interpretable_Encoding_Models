@@ -1,3 +1,5 @@
+## Additional LTPJ quantification and consistency tables
+
 ### Sensitivity to selection thresholds
 
 Both groups contain well-predicted voxels. Each fraction reports the number

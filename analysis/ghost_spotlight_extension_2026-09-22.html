@@ -8285,9 +8285,9 @@ theory-of-mind cortex in our participants.</p>
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
 </div>
 <div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
-</div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput celltag_ghost-ltpj-reviewer-tables-2026-11-09" data-mime-type="text/markdown">
-<!-- ghost-ltpj-reviewer-tables-2026-11-09 -->
-<h2 id="Functional-LTPJ:-threshold-sensitivity-and-participant-counts">Functional LTPJ: threshold sensitivity and participant counts<a class="anchor-link" href="#Functional-LTPJ:-threshold-sensitivity-and-participant-counts">¶</a></h2><p>The prediction and agreement thresholds are descriptive heuristics, not
+</div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput celltag_ghost-ltpj-consistency-tables-2026-11-09" data-mime-type="text/markdown">
+<!-- ghost-ltpj-consistency-tables-2026-11-09 -->
+<h2 id="Additional-LTPJ-quantification-and-consistency-tables">Additional LTPJ quantification and consistency tables<a class="anchor-link" href="#Additional-LTPJ-quantification-and-consistency-tables">¶</a></h2><p>The prediction and agreement thresholds are descriptive heuristics, not
 significance tests. NC-normalized (r=0.5) means half the estimated ceiling
 <strong>correlation</strong>, not half the explainable variance. Direction agreement is
 averaged across the five cross-validation folds.</p>
@@ -8305,7 +8305,7 @@ participant.</p>
 </div>
 </div>
 </div>
-</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell celltag_ghost-ltpj-reviewer-tables-2026-11-09" id="cell-id=883ce265">
+</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell celltag_ghost-ltpj-consistency-tables-2026-11-09" id="cell-id=883ce265">
 <div class="jp-Cell-inputWrapper" tabindex="0">
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
 </div>
@@ -8313,18 +8313,18 @@ participant.</p>
 <div class="jp-InputPrompt jp-InputArea-prompt">In [6]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
 <div class="cm-editor cm-s-jupyter">
-<div class="highlight hl-ipython3"><pre><span></span><span class="c1"># ghost-ltpj-reviewer-tables-2026-11-09</span>
-<span class="k">def</span> <span class="nf">reviewer_ltpj_percent</span><span class="p">(</span><span class="n">inside</span><span class="p">,</span> <span class="n">total</span><span class="p">):</span>
+<div class="highlight hl-ipython3"><pre><span></span><span class="c1"># ghost-ltpj-consistency-tables-2026-11-09</span>
+<span class="k">def</span> <span class="nf">consistency_ltpj_percent</span><span class="p">(</span><span class="n">inside</span><span class="p">,</span> <span class="n">total</span><span class="p">):</span>
     <span class="k">return</span> <span class="mi">100</span> <span class="o">*</span> <span class="n">inside</span> <span class="o">/</span> <span class="n">total</span> <span class="k">if</span> <span class="n">total</span> <span class="k">else</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span>
 
 
-<span class="k">def</span> <span class="nf">reviewer_ltpj_fraction</span><span class="p">(</span><span class="n">inside</span><span class="p">,</span> <span class="n">total</span><span class="p">):</span>
+<span class="k">def</span> <span class="nf">consistency_ltpj_fraction</span><span class="p">(</span><span class="n">inside</span><span class="p">,</span> <span class="n">total</span><span class="p">):</span>
     <span class="k">if</span> <span class="ow">not</span> <span class="n">total</span><span class="p">:</span>
         <span class="k">return</span> <span class="s2">"—"</span>
-    <span class="k">return</span> <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">inside</span><span class="si">:</span><span class="s2">,</span><span class="si">}</span><span class="s2">/</span><span class="si">{</span><span class="n">total</span><span class="si">:</span><span class="s2">,</span><span class="si">}</span><span class="s2"> (</span><span class="si">{</span><span class="n">reviewer_ltpj_percent</span><span class="p">(</span><span class="n">inside</span><span class="p">,</span><span class="w"> </span><span class="n">total</span><span class="p">)</span><span class="si">:</span><span class="s2">.1f</span><span class="si">}</span><span class="s2">%)"</span>
+    <span class="k">return</span> <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">inside</span><span class="si">:</span><span class="s2">,</span><span class="si">}</span><span class="s2">/</span><span class="si">{</span><span class="n">total</span><span class="si">:</span><span class="s2">,</span><span class="si">}</span><span class="s2"> (</span><span class="si">{</span><span class="n">consistency_ltpj_percent</span><span class="p">(</span><span class="n">inside</span><span class="p">,</span><span class="w"> </span><span class="n">total</span><span class="p">)</span><span class="si">:</span><span class="s2">.1f</span><span class="si">}</span><span class="s2">%)"</span>
 
 
-<span class="k">def</span> <span class="nf">reviewer_ltpj_counts</span><span class="p">(</span><span class="n">frame</span><span class="p">,</span> <span class="n">prediction_threshold</span><span class="p">,</span> <span class="n">agreement_threshold</span><span class="p">):</span>
+<span class="k">def</span> <span class="nf">consistency_ltpj_counts</span><span class="p">(</span><span class="n">frame</span><span class="p">,</span> <span class="n">prediction_threshold</span><span class="p">,</span> <span class="n">agreement_threshold</span><span class="p">):</span>
     <span class="n">predicted</span> <span class="o">=</span> <span class="n">frame</span><span class="p">[</span><span class="s2">"NC Normalized R Fischer"</span><span class="p">]</span><span class="o">.</span><span class="n">ge</span><span class="p">(</span><span class="n">prediction_threshold</span><span class="p">)</span>
     <span class="n">agreement</span> <span class="o">=</span> <span class="n">frame</span><span class="p">[</span><span class="s2">"Average Num Features Agree Direction"</span><span class="p">]</span><span class="o">.</span><span class="n">ge</span><span class="p">(</span><span class="n">agreement_threshold</span><span class="p">)</span>
     <span class="n">aligned_mask</span> <span class="o">=</span> <span class="n">predicted</span> <span class="o">&amp;</span> <span class="n">agreement</span>
@@ -8339,16 +8339,16 @@ participant.</p>
         <span class="s2">"well_predicted_count"</span><span class="p">:</span> <span class="nb">int</span><span class="p">(</span><span class="n">predicted</span><span class="o">.</span><span class="n">sum</span><span class="p">()),</span>
         <span class="s2">"aligned_count"</span><span class="p">:</span> <span class="nb">len</span><span class="p">(</span><span class="n">aligned_frame</span><span class="p">),</span>
         <span class="s2">"aligned_ltpj_count"</span><span class="p">:</span> <span class="n">aligned_inside</span><span class="p">,</span>
-        <span class="s2">"aligned_ltpj_percent"</span><span class="p">:</span> <span class="n">reviewer_ltpj_percent</span><span class="p">(</span><span class="n">aligned_inside</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">aligned_frame</span><span class="p">)),</span>
+        <span class="s2">"aligned_ltpj_percent"</span><span class="p">:</span> <span class="n">consistency_ltpj_percent</span><span class="p">(</span><span class="n">aligned_inside</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">aligned_frame</span><span class="p">)),</span>
         <span class="s2">"well_predicted_nonaligned_count"</span><span class="p">:</span> <span class="nb">len</span><span class="p">(</span><span class="n">nonaligned_frame</span><span class="p">),</span>
         <span class="s2">"well_predicted_nonaligned_ltpj_count"</span><span class="p">:</span> <span class="n">nonaligned_inside</span><span class="p">,</span>
-        <span class="s2">"well_predicted_nonaligned_ltpj_percent"</span><span class="p">:</span> <span class="n">reviewer_ltpj_percent</span><span class="p">(</span>
+        <span class="s2">"well_predicted_nonaligned_ltpj_percent"</span><span class="p">:</span> <span class="n">consistency_ltpj_percent</span><span class="p">(</span>
             <span class="n">nonaligned_inside</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">nonaligned_frame</span><span class="p">)</span>
         <span class="p">),</span>
     <span class="p">}</span>
 
 
-<span class="k">def</span> <span class="nf">build_reviewer_ltpj_tables</span><span class="p">(</span><span class="n">frame</span><span class="p">,</span> <span class="n">baseline_participants</span><span class="p">,</span> <span class="n">participants</span><span class="p">):</span>
+<span class="k">def</span> <span class="nf">build_ltpj_consistency_tables</span><span class="p">(</span><span class="n">frame</span><span class="p">,</span> <span class="n">baseline_participants</span><span class="p">,</span> <span class="n">participants</span><span class="p">):</span>
     <span class="c1"># Freeze this cohort once; do not reselect contributors at other thresholds.</span>
     <span class="n">baseline_participants</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">baseline_participants</span><span class="p">)</span>
     <span class="n">participants</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">participants</span><span class="p">)</span>
@@ -8369,7 +8369,7 @@ participant.</p>
             <span class="s2">"mean_direction_agreement_threshold"</span><span class="p">:</span> <span class="n">agreement_threshold</span><span class="p">,</span>
             <span class="s2">"participants"</span><span class="p">:</span> <span class="s2">";"</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">cohort</span><span class="p">),</span>
             <span class="s2">"participant_count"</span><span class="p">:</span> <span class="nb">len</span><span class="p">(</span><span class="n">cohort</span><span class="p">),</span>
-            <span class="o">**</span><span class="n">reviewer_ltpj_counts</span><span class="p">(</span><span class="n">subset</span><span class="p">,</span> <span class="n">prediction_threshold</span><span class="p">,</span> <span class="n">agreement_threshold</span><span class="p">),</span>
+            <span class="o">**</span><span class="n">consistency_ltpj_counts</span><span class="p">(</span><span class="n">subset</span><span class="p">,</span> <span class="n">prediction_threshold</span><span class="p">,</span> <span class="n">agreement_threshold</span><span class="p">),</span>
         <span class="p">})</span>
     <span class="n">participant_rows</span> <span class="o">=</span> <span class="p">[]</span>
     <span class="k">for</span> <span class="n">participant</span> <span class="ow">in</span> <span class="n">participants</span><span class="p">:</span>
@@ -8379,19 +8379,19 @@ participant.</p>
             <span class="s2">"row_type"</span><span class="p">:</span> <span class="s2">"participant"</span><span class="p">,</span>
             <span class="s2">"nc_normalized_r_threshold"</span><span class="p">:</span> <span class="mf">0.5</span><span class="p">,</span>
             <span class="s2">"mean_direction_agreement_threshold"</span><span class="p">:</span> <span class="mi">7</span><span class="p">,</span>
-            <span class="o">**</span><span class="n">reviewer_ltpj_counts</span><span class="p">(</span><span class="n">subset</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">,</span> <span class="mi">7</span><span class="p">),</span>
+            <span class="o">**</span><span class="n">consistency_ltpj_counts</span><span class="p">(</span><span class="n">subset</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">,</span> <span class="mi">7</span><span class="p">),</span>
         <span class="p">})</span>
     <span class="n">participant_rows</span><span class="o">.</span><span class="n">append</span><span class="p">({</span>
         <span class="s2">"participant"</span><span class="p">:</span> <span class="s2">"All eight (pooled)"</span><span class="p">,</span>
         <span class="s2">"row_type"</span><span class="p">:</span> <span class="s2">"pooled_total"</span><span class="p">,</span>
         <span class="s2">"nc_normalized_r_threshold"</span><span class="p">:</span> <span class="mf">0.5</span><span class="p">,</span>
         <span class="s2">"mean_direction_agreement_threshold"</span><span class="p">:</span> <span class="mi">7</span><span class="p">,</span>
-        <span class="o">**</span><span class="n">reviewer_ltpj_counts</span><span class="p">(</span><span class="n">frame</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">frame</span><span class="p">[</span><span class="s2">"Participant"</span><span class="p">]</span><span class="o">.</span><span class="n">isin</span><span class="p">(</span><span class="n">participants</span><span class="p">)],</span> <span class="mf">0.5</span><span class="p">,</span> <span class="mi">7</span><span class="p">),</span>
+        <span class="o">**</span><span class="n">consistency_ltpj_counts</span><span class="p">(</span><span class="n">frame</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">frame</span><span class="p">[</span><span class="s2">"Participant"</span><span class="p">]</span><span class="o">.</span><span class="n">isin</span><span class="p">(</span><span class="n">participants</span><span class="p">)],</span> <span class="mf">0.5</span><span class="p">,</span> <span class="mi">7</span><span class="p">),</span>
     <span class="p">})</span>
     <span class="k">return</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">sensitivity_rows</span><span class="p">),</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">participant_rows</span><span class="p">)</span>
 
 
-<span class="n">ltpj_threshold_sensitivity</span><span class="p">,</span> <span class="n">ltpj_participant_counts</span> <span class="o">=</span> <span class="n">build_reviewer_ltpj_tables</span><span class="p">(</span>
+<span class="n">ltpj_threshold_sensitivity</span><span class="p">,</span> <span class="n">ltpj_participant_counts</span> <span class="o">=</span> <span class="n">build_ltpj_consistency_tables</span><span class="p">(</span>
     <span class="n">ghost</span><span class="p">,</span> <span class="n">ANATOMY_PARTICIPANTS</span><span class="p">,</span> <span class="n">PARTICIPANTS</span>
 <span class="p">)</span>
 
@@ -8401,11 +8401,11 @@ participant.</p>
     <span class="s2">"Mean agreement ≥ (of 10)"</span><span class="p">:</span> <span class="n">ltpj_threshold_sensitivity</span><span class="p">[</span><span class="s2">"mean_direction_agreement_threshold"</span><span class="p">],</span>
     <span class="s2">"Participant cohort"</span><span class="p">:</span> <span class="n">ltpj_threshold_sensitivity</span><span class="p">[</span><span class="s2">"participants"</span><span class="p">]</span><span class="o">.</span><span class="n">str</span><span class="o">.</span><span class="n">upper</span><span class="p">()</span><span class="o">.</span><span class="n">str</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">";"</span><span class="p">,</span> <span class="s2">", "</span><span class="p">),</span>
     <span class="s2">"Aligned in LTPJ, n/N (%)"</span><span class="p">:</span> <span class="p">[</span>
-        <span class="n">reviewer_ltpj_fraction</span><span class="p">(</span><span class="n">row</span><span class="o">.</span><span class="n">aligned_ltpj_count</span><span class="p">,</span> <span class="n">row</span><span class="o">.</span><span class="n">aligned_count</span><span class="p">)</span>
+        <span class="n">consistency_ltpj_fraction</span><span class="p">(</span><span class="n">row</span><span class="o">.</span><span class="n">aligned_ltpj_count</span><span class="p">,</span> <span class="n">row</span><span class="o">.</span><span class="n">aligned_count</span><span class="p">)</span>
         <span class="k">for</span> <span class="n">row</span> <span class="ow">in</span> <span class="n">ltpj_threshold_sensitivity</span><span class="o">.</span><span class="n">itertuples</span><span class="p">()</span>
     <span class="p">],</span>
     <span class="s2">"Well-predicted non-aligned in LTPJ, n/N (%)"</span><span class="p">:</span> <span class="p">[</span>
-        <span class="n">reviewer_ltpj_fraction</span><span class="p">(</span><span class="n">row</span><span class="o">.</span><span class="n">well_predicted_nonaligned_ltpj_count</span><span class="p">,</span> <span class="n">row</span><span class="o">.</span><span class="n">well_predicted_nonaligned_count</span><span class="p">)</span>
+        <span class="n">consistency_ltpj_fraction</span><span class="p">(</span><span class="n">row</span><span class="o">.</span><span class="n">well_predicted_nonaligned_ltpj_count</span><span class="p">,</span> <span class="n">row</span><span class="o">.</span><span class="n">well_predicted_nonaligned_count</span><span class="p">)</span>
         <span class="k">for</span> <span class="n">row</span> <span class="ow">in</span> <span class="n">ltpj_threshold_sensitivity</span><span class="o">.</span><span class="n">itertuples</span><span class="p">()</span>
     <span class="p">],</span>
 <span class="p">})</span>
@@ -8419,23 +8419,23 @@ participant.</p>
     <span class="s2">"Well predicted"</span><span class="p">:</span> <span class="n">ltpj_participant_counts</span><span class="p">[</span><span class="s2">"well_predicted_count"</span><span class="p">],</span>
     <span class="s2">"Aligned"</span><span class="p">:</span> <span class="n">ltpj_participant_counts</span><span class="p">[</span><span class="s2">"aligned_count"</span><span class="p">],</span>
     <span class="s2">"Aligned in LTPJ, n/N (%)"</span><span class="p">:</span> <span class="p">[</span>
-        <span class="n">reviewer_ltpj_fraction</span><span class="p">(</span><span class="n">row</span><span class="o">.</span><span class="n">aligned_ltpj_count</span><span class="p">,</span> <span class="n">row</span><span class="o">.</span><span class="n">aligned_count</span><span class="p">)</span>
+        <span class="n">consistency_ltpj_fraction</span><span class="p">(</span><span class="n">row</span><span class="o">.</span><span class="n">aligned_ltpj_count</span><span class="p">,</span> <span class="n">row</span><span class="o">.</span><span class="n">aligned_count</span><span class="p">)</span>
         <span class="k">for</span> <span class="n">row</span> <span class="ow">in</span> <span class="n">ltpj_participant_counts</span><span class="o">.</span><span class="n">itertuples</span><span class="p">()</span>
     <span class="p">],</span>
     <span class="s2">"Well-predicted non-aligned in LTPJ, n/N (%)"</span><span class="p">:</span> <span class="p">[</span>
-        <span class="n">reviewer_ltpj_fraction</span><span class="p">(</span><span class="n">row</span><span class="o">.</span><span class="n">well_predicted_nonaligned_ltpj_count</span><span class="p">,</span> <span class="n">row</span><span class="o">.</span><span class="n">well_predicted_nonaligned_count</span><span class="p">)</span>
+        <span class="n">consistency_ltpj_fraction</span><span class="p">(</span><span class="n">row</span><span class="o">.</span><span class="n">well_predicted_nonaligned_ltpj_count</span><span class="p">,</span> <span class="n">row</span><span class="o">.</span><span class="n">well_predicted_nonaligned_count</span><span class="p">)</span>
         <span class="k">for</span> <span class="n">row</span> <span class="ow">in</span> <span class="n">ltpj_participant_counts</span><span class="o">.</span><span class="n">itertuples</span><span class="p">()</span>
     <span class="p">],</span>
 <span class="p">})</span>
 <span class="n">display</span><span class="p">(</span><span class="n">participant_display</span><span class="o">.</span><span class="n">style</span><span class="o">.</span><span class="n">hide</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="s2">"index"</span><span class="p">))</span>
 
-<span class="n">reviewer_table_dir</span> <span class="o">=</span> <span class="n">REPO_ROOT</span> <span class="o">/</span> <span class="s2">"analysis/figures"</span>
-<span class="n">reviewer_table_dir</span><span class="o">.</span><span class="n">mkdir</span><span class="p">(</span><span class="n">parents</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="n">consistency_table_dir</span> <span class="o">=</span> <span class="n">REPO_ROOT</span> <span class="o">/</span> <span class="s2">"analysis/figures"</span>
+<span class="n">consistency_table_dir</span><span class="o">.</span><span class="n">mkdir</span><span class="p">(</span><span class="n">parents</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 <span class="n">ltpj_threshold_sensitivity</span><span class="o">.</span><span class="n">to_csv</span><span class="p">(</span>
-    <span class="n">reviewer_table_dir</span> <span class="o">/</span> <span class="s2">"ghost_ltpj_threshold_sensitivity.csv"</span><span class="p">,</span> <span class="n">index</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">na_rep</span><span class="o">=</span><span class="s2">"NA"</span>
+    <span class="n">consistency_table_dir</span> <span class="o">/</span> <span class="s2">"ghost_ltpj_threshold_sensitivity.csv"</span><span class="p">,</span> <span class="n">index</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">na_rep</span><span class="o">=</span><span class="s2">"NA"</span>
 <span class="p">)</span>
 <span class="n">ltpj_participant_counts</span><span class="o">.</span><span class="n">to_csv</span><span class="p">(</span>
-    <span class="n">reviewer_table_dir</span> <span class="o">/</span> <span class="s2">"ghost_ltpj_participant_counts.csv"</span><span class="p">,</span> <span class="n">index</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">na_rep</span><span class="o">=</span><span class="s2">"NA"</span>
+    <span class="n">consistency_table_dir</span> <span class="o">/</span> <span class="s2">"ghost_ltpj_participant_counts.csv"</span><span class="p">,</span> <span class="n">index</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">na_rep</span><span class="o">=</span><span class="s2">"NA"</span>
 <span class="p">)</span>
 <span class="nb">print</span><span class="p">(</span><span class="s2">"Saved raw counts and percentages: ghost_ltpj_threshold_sensitivity.csv and ghost_ltpj_participant_counts.csv"</span><span class="p">)</span>
 </pre></div>

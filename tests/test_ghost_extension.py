@@ -256,10 +256,10 @@ def test_primary_bars_render_without_glasser(tmp_path, monkeypatch, capsys, glas
 
 
 @pytest.fixture
-def reviewer_table_helpers():
+def consistency_table_helpers():
     selected = {
-        "reviewer_ltpj_percent", "reviewer_ltpj_fraction", "reviewer_ltpj_counts",
-        "build_reviewer_ltpj_tables",
+        "consistency_ltpj_percent", "consistency_ltpj_fraction", "consistency_ltpj_counts",
+        "build_ltpj_consistency_tables",
     }
     definitions = [
         node
@@ -275,7 +275,7 @@ def reviewer_table_helpers():
 
 
 @pytest.fixture
-def reviewer_candidates():
+def consistency_candidates():
     # Repeated vertex IDs across participants intentionally count separately.
     values = {
         "p1": [(0.5, 7, True), (0.6, 8, False), (0.4, 7, True), (0.5, 6, False)],
@@ -296,11 +296,11 @@ def reviewer_candidates():
     ])
 
 
-def test_reviewer_sensitivity_order_fixed_cohort_and_partition(reviewer_table_helpers, reviewer_candidates):
+def test_consistency_sensitivity_order_fixed_cohort_and_partition(consistency_table_helpers, consistency_candidates):
     baseline = ["p1", "p2", "p3", "p5", "p8"]
     participants = [f"p{i}" for i in range(1, 9)]
-    sensitivity, _ = reviewer_table_helpers["build_reviewer_ltpj_tables"](
-        reviewer_candidates, baseline, participants
+    sensitivity, _ = consistency_table_helpers["build_ltpj_consistency_tables"](
+        consistency_candidates, baseline, participants
     )
     assert sensitivity.analysis.tolist() == [
         "Original", "No participant exclusion", "Lower predictivity", "Higher predictivity",
@@ -324,10 +324,10 @@ def test_reviewer_sensitivity_order_fixed_cohort_and_partition(reviewer_table_he
     assert sensitivity.loc[5, "well_predicted_nonaligned_ltpj_count"] == 4
 
 
-def test_reviewer_participants_include_zero_alignment_and_pooled_total(reviewer_table_helpers, reviewer_candidates):
+def test_consistency_participants_include_zero_alignment_and_pooled_total(consistency_table_helpers, consistency_candidates):
     participants = [f"p{i}" for i in range(1, 9)]
-    _, table = reviewer_table_helpers["build_reviewer_ltpj_tables"](
-        reviewer_candidates, ["p1", "p2", "p3", "p5", "p8"], participants
+    _, table = consistency_table_helpers["build_ltpj_consistency_tables"](
+        consistency_candidates, ["p1", "p2", "p3", "p5", "p8"], participants
     )
     assert table.participant.tolist() == [p.upper() for p in participants] + ["All eight (pooled)"]
     assert table.row_type.tolist() == ["participant"] * 8 + ["pooled_total"]
@@ -337,25 +337,25 @@ def test_reviewer_participants_include_zero_alignment_and_pooled_total(reviewer_
         "well_predicted_nonaligned_count", "well_predicted_nonaligned_ltpj_count",
     ):
         assert pooled[column] == table.iloc[:8][column].sum()
-    assert pooled.candidate_count == len(reviewer_candidates)
+    assert pooled.candidate_count == len(consistency_candidates)
     assert pooled.aligned_ltpj_percent == pytest.approx(100 * 4 / 7)
     p6 = table.loc[table.participant.eq("P6")].iloc[0]
     assert p6.aligned_count == 0 and np.isnan(p6.aligned_ltpj_percent)
-    assert reviewer_table_helpers["reviewer_ltpj_fraction"](0, 0) == "—"
-    assert reviewer_table_helpers["reviewer_ltpj_fraction"](0, 1) == "0/1 (0.0%)"
+    assert consistency_table_helpers["consistency_ltpj_fraction"](0, 0) == "—"
+    assert consistency_table_helpers["consistency_ltpj_fraction"](0, 1) == "0/1 (0.0%)"
 
 
-def test_reviewer_cell_displays_two_tables_and_saves_raw_csvs(tmp_path, reviewer_candidates):
-    marker = "ghost-ltpj-reviewer-tables-2026-11-09"
+def test_consistency_cell_displays_two_tables_and_saves_raw_csvs(tmp_path, consistency_candidates):
+    marker = "ghost-ltpj-consistency-tables-2026-11-09"
     source = next(cell for cell in embedded_code_cells(BUILDER) if cell.startswith("# " + marker))
     displayed = []
     namespace = {
         "np": np, "pd": pd, "REPO_ROOT": tmp_path,
-        "ghost": reviewer_candidates, "ANATOMY_PARTICIPANTS": ["p1", "p2", "p3", "p5", "p8"],
+        "ghost": consistency_candidates, "ANATOMY_PARTICIPANTS": ["p1", "p2", "p3", "p5", "p8"],
         "PARTICIPANTS": [f"p{i}" for i in range(1, 9)],
         "display": displayed.append,
     }
-    exec(compile(source, "reviewer_ltpj_table_cell", "exec"), namespace)
+    exec(compile(source, "consistency_ltpj_table_cell", "exec"), namespace)
     assert len(displayed) == 2
     directory = tmp_path / "analysis/figures"
     sensitivity = pd.read_csv(directory / "ghost_ltpj_threshold_sensitivity.csv")

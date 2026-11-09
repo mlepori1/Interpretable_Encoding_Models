@@ -483,8 +483,8 @@ theory-of-mind cortex in our participants.
     ),
     md(
         r"""
-<!-- ghost-ltpj-reviewer-tables-2026-11-09 -->
-## Functional LTPJ: threshold sensitivity and participant counts
+<!-- ghost-ltpj-consistency-tables-2026-11-09 -->
+## Additional LTPJ quantification and consistency tables
 
 The prediction and agreement thresholds are descriptive heuristics, not
 significance tests. NC-normalized (r=0.5) means half the estimated ceiling
@@ -507,18 +507,18 @@ participant.
     ),
     code(
         r"""
-# ghost-ltpj-reviewer-tables-2026-11-09
-def reviewer_ltpj_percent(inside, total):
+# ghost-ltpj-consistency-tables-2026-11-09
+def consistency_ltpj_percent(inside, total):
     return 100 * inside / total if total else np.nan
 
 
-def reviewer_ltpj_fraction(inside, total):
+def consistency_ltpj_fraction(inside, total):
     if not total:
         return "—"
-    return f"{inside:,}/{total:,} ({reviewer_ltpj_percent(inside, total):.1f}%)"
+    return f"{inside:,}/{total:,} ({consistency_ltpj_percent(inside, total):.1f}%)"
 
 
-def reviewer_ltpj_counts(frame, prediction_threshold, agreement_threshold):
+def consistency_ltpj_counts(frame, prediction_threshold, agreement_threshold):
     predicted = frame["NC Normalized R Fischer"].ge(prediction_threshold)
     agreement = frame["Average Num Features Agree Direction"].ge(agreement_threshold)
     aligned_mask = predicted & agreement
@@ -533,16 +533,16 @@ def reviewer_ltpj_counts(frame, prediction_threshold, agreement_threshold):
         "well_predicted_count": int(predicted.sum()),
         "aligned_count": len(aligned_frame),
         "aligned_ltpj_count": aligned_inside,
-        "aligned_ltpj_percent": reviewer_ltpj_percent(aligned_inside, len(aligned_frame)),
+        "aligned_ltpj_percent": consistency_ltpj_percent(aligned_inside, len(aligned_frame)),
         "well_predicted_nonaligned_count": len(nonaligned_frame),
         "well_predicted_nonaligned_ltpj_count": nonaligned_inside,
-        "well_predicted_nonaligned_ltpj_percent": reviewer_ltpj_percent(
+        "well_predicted_nonaligned_ltpj_percent": consistency_ltpj_percent(
             nonaligned_inside, len(nonaligned_frame)
         ),
     }
 
 
-def build_reviewer_ltpj_tables(frame, baseline_participants, participants):
+def build_ltpj_consistency_tables(frame, baseline_participants, participants):
     # Freeze this cohort once; do not reselect contributors at other thresholds.
     baseline_participants = tuple(baseline_participants)
     participants = tuple(participants)
@@ -563,7 +563,7 @@ def build_reviewer_ltpj_tables(frame, baseline_participants, participants):
             "mean_direction_agreement_threshold": agreement_threshold,
             "participants": ";".join(cohort),
             "participant_count": len(cohort),
-            **reviewer_ltpj_counts(subset, prediction_threshold, agreement_threshold),
+            **consistency_ltpj_counts(subset, prediction_threshold, agreement_threshold),
         })
     participant_rows = []
     for participant in participants:
@@ -573,19 +573,19 @@ def build_reviewer_ltpj_tables(frame, baseline_participants, participants):
             "row_type": "participant",
             "nc_normalized_r_threshold": 0.5,
             "mean_direction_agreement_threshold": 7,
-            **reviewer_ltpj_counts(subset, 0.5, 7),
+            **consistency_ltpj_counts(subset, 0.5, 7),
         })
     participant_rows.append({
         "participant": "All eight (pooled)",
         "row_type": "pooled_total",
         "nc_normalized_r_threshold": 0.5,
         "mean_direction_agreement_threshold": 7,
-        **reviewer_ltpj_counts(frame.loc[frame["Participant"].isin(participants)], 0.5, 7),
+        **consistency_ltpj_counts(frame.loc[frame["Participant"].isin(participants)], 0.5, 7),
     })
     return pd.DataFrame(sensitivity_rows), pd.DataFrame(participant_rows)
 
 
-ltpj_threshold_sensitivity, ltpj_participant_counts = build_reviewer_ltpj_tables(
+ltpj_threshold_sensitivity, ltpj_participant_counts = build_ltpj_consistency_tables(
     ghost, ANATOMY_PARTICIPANTS, PARTICIPANTS
 )
 
@@ -595,11 +595,11 @@ sensitivity_display = pd.DataFrame({
     "Mean agreement ≥ (of 10)": ltpj_threshold_sensitivity["mean_direction_agreement_threshold"],
     "Participant cohort": ltpj_threshold_sensitivity["participants"].str.upper().str.replace(";", ", "),
     "Aligned in LTPJ, n/N (%)": [
-        reviewer_ltpj_fraction(row.aligned_ltpj_count, row.aligned_count)
+        consistency_ltpj_fraction(row.aligned_ltpj_count, row.aligned_count)
         for row in ltpj_threshold_sensitivity.itertuples()
     ],
     "Well-predicted non-aligned in LTPJ, n/N (%)": [
-        reviewer_ltpj_fraction(row.well_predicted_nonaligned_ltpj_count, row.well_predicted_nonaligned_count)
+        consistency_ltpj_fraction(row.well_predicted_nonaligned_ltpj_count, row.well_predicted_nonaligned_count)
         for row in ltpj_threshold_sensitivity.itertuples()
     ],
 })
@@ -613,23 +613,23 @@ participant_display = pd.DataFrame({
     "Well predicted": ltpj_participant_counts["well_predicted_count"],
     "Aligned": ltpj_participant_counts["aligned_count"],
     "Aligned in LTPJ, n/N (%)": [
-        reviewer_ltpj_fraction(row.aligned_ltpj_count, row.aligned_count)
+        consistency_ltpj_fraction(row.aligned_ltpj_count, row.aligned_count)
         for row in ltpj_participant_counts.itertuples()
     ],
     "Well-predicted non-aligned in LTPJ, n/N (%)": [
-        reviewer_ltpj_fraction(row.well_predicted_nonaligned_ltpj_count, row.well_predicted_nonaligned_count)
+        consistency_ltpj_fraction(row.well_predicted_nonaligned_ltpj_count, row.well_predicted_nonaligned_count)
         for row in ltpj_participant_counts.itertuples()
     ],
 })
 display(participant_display.style.hide(axis="index"))
 
-reviewer_table_dir = REPO_ROOT / "analysis/figures"
-reviewer_table_dir.mkdir(parents=True, exist_ok=True)
+consistency_table_dir = REPO_ROOT / "analysis/figures"
+consistency_table_dir.mkdir(parents=True, exist_ok=True)
 ltpj_threshold_sensitivity.to_csv(
-    reviewer_table_dir / "ghost_ltpj_threshold_sensitivity.csv", index=False, na_rep="NA"
+    consistency_table_dir / "ghost_ltpj_threshold_sensitivity.csv", index=False, na_rep="NA"
 )
 ltpj_participant_counts.to_csv(
-    reviewer_table_dir / "ghost_ltpj_participant_counts.csv", index=False, na_rep="NA"
+    consistency_table_dir / "ghost_ltpj_participant_counts.csv", index=False, na_rep="NA"
 )
 print("Saved raw counts and percentages: ghost_ltpj_threshold_sensitivity.csv and ghost_ltpj_participant_counts.csv")
 """
@@ -1232,8 +1232,8 @@ cells = [
 
 
 for cell in cells:
-    if "ghost-ltpj-reviewer-tables-2026-11-09" in cell.source.splitlines()[0]:
-        cell.metadata["tags"] = ["ghost-ltpj-reviewer-tables-2026-11-09"]
+    if "ghost-ltpj-consistency-tables-2026-11-09" in cell.source.splitlines()[0]:
+        cell.metadata["tags"] = ["ghost-ltpj-consistency-tables-2026-11-09"]
 
 
 notebook = nbf.v4.new_notebook(
