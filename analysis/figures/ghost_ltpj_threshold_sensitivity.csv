@@ -1,0 +1,7 @@
+analysis,nc_normalized_r_threshold,mean_direction_agreement_threshold,participants,participant_count,candidate_count,well_predicted_count,aligned_count,aligned_ltpj_count,aligned_ltpj_percent,well_predicted_nonaligned_count,well_predicted_nonaligned_ltpj_count,well_predicted_nonaligned_ltpj_percent
+Original,0.5,7,p1;p2;p3;p5;p8,5,1284,264,178,143,80.33707865168539,86,20,23.25581395348837
+No participant exclusion,0.5,7,p1;p2;p3;p4;p5;p6;p7;p8,8,1490,275,181,143,79.00552486187846,94,25,26.595744680851062
+Lower predictivity,0.4,7,p1;p2;p3;p5;p8,5,1284,411,250,185,74.0,161,45,27.950310559006212
+Higher predictivity,0.6,7,p1;p2;p3;p5;p8,5,1284,133,103,92,89.32038834951456,30,2,6.666666666666667
+Lower agreement,0.5,6,p1;p2;p3;p5;p8,5,1284,264,219,157,71.68949771689498,45,6,13.333333333333334
+Higher agreement,0.5,8,p1;p2;p3;p5;p8,5,1284,264,116,94,81.03448275862068,148,69,46.62162162162162
