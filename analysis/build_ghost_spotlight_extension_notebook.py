@@ -484,7 +484,7 @@ theory-of-mind cortex in our participants.
     md(
         r"""
 <!-- ghost-ltpj-consistency-tables-2026-11-09 -->
-## Additional LTPJ quantification and consistency tables
+## Robustness across selection thresholds
 
 The prediction and agreement thresholds are descriptive heuristics, not
 significance tests. NC-normalized (r=0.5) means half the estimated ceiling
