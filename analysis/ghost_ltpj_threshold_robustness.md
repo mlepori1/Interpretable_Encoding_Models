@@ -29,10 +29,11 @@ These are descriptive sensitivity checks, not significance tests.
 
 ### Participant-level counts at the original thresholds
 
-The following uses NC-normalized r ≥ 0.5 and mean direction agreement ≥ 7/10.
-Both anatomical columns contain only well-predicted voxels.
+The following uses mean direction agreement ≥ 7/10 to define alignment.
+Both groups contain only well-predicted voxels (NC-normalized r ≥ 0.5);
+percentages use each group's own denominator.
 
-| Participant | Well predicted | Direction-aligned | Aligned in LTPJ, n/N (%) | Non-aligned in LTPJ, n/N (%) |
+| Participant | Well predicted | Direction-aligned | Agreement ≥7/10: in LTPJ, n/N (%) | Agreement <7/10: in LTPJ, n/N (%) |
 |---|---:|---:|---:|---:|
 | P1 | 87 | 58 | 51/58 (87.9%) | 12/29 (41.4%) |
 | P2 | 83 | 74 | 64/74 (86.5%) | 2/9 (22.2%) |

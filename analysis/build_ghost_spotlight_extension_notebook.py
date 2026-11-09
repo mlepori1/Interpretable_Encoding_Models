@@ -502,7 +502,9 @@ Counts pool participant–vertex
 observations, not unique vertices or participant-wise percentages.
 
 The second table reports all eight participants at the original thresholds,
-including participants with no aligned voxels. An em dash means the denominator
+including participants with no aligned voxels. Both groups contain only
+well-predicted voxels (NC-normalized r ≥ 0.5); percentages use each group's
+own denominator. Agreement ≥7/10 defines alignment. An em dash means the denominator
 is zero, not 0% overlap. The pooled result need not hold equally within every
 participant.
 """
@@ -614,11 +616,11 @@ participant_display = pd.DataFrame({
     "Candidates": ltpj_participant_counts["candidate_count"],
     "Well predicted": ltpj_participant_counts["well_predicted_count"],
     "Aligned": ltpj_participant_counts["aligned_count"],
-    "Aligned in LTPJ, n/N (%)": [
+    "Agreement ≥7/10: in LTPJ, n/N (%)": [
         consistency_ltpj_fraction(row.aligned_ltpj_count, row.aligned_count)
         for row in ltpj_participant_counts.itertuples()
     ],
-    "Well-predicted non-aligned in LTPJ, n/N (%)": [
+    "Agreement <7/10: in LTPJ, n/N (%)": [
         consistency_ltpj_fraction(row.well_predicted_nonaligned_ltpj_count, row.well_predicted_nonaligned_count)
         for row in ltpj_participant_counts.itertuples()
     ],

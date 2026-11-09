@@ -364,6 +364,6 @@ def test_consistency_cell_displays_two_tables_and_saves_raw_csvs(tmp_path, consi
     assert np.isnan(participants.loc[participants.participant.eq("P6"), "aligned_ltpj_percent"]).all()
     assert participants.loc[participants.participant.eq("P6"), "aligned_count"].item() == 0
     assert namespace["participant_display"].loc[
-        namespace["participant_display"].Participant.eq("P6"), "Aligned in LTPJ, n/N (%)"
+        namespace["participant_display"].Participant.eq("P6"), "Agreement ≥7/10: in LTPJ, n/N (%)"
     ].item() == "—"
     assert not list(directory.glob("*.png")) and not list(directory.glob("*.pdf"))
