@@ -253,3 +253,117 @@ def test_primary_bars_render_without_glasser(tmp_path, monkeypatch, capsys, glas
     assert surfaces == (["glasser"] if glasser_available else [])
     if not glasser_available:
         assert "Skipping the Glasser surface supplement" in capsys.readouterr().out
+
+
+@pytest.fixture
+def reviewer_table_helpers():
+    selected = {
+        "reviewer_ltpj_percent", "reviewer_ltpj_fraction", "reviewer_ltpj_counts",
+        "build_reviewer_ltpj_tables",
+    }
+    definitions = [
+        node
+        for source in embedded_code_cells(BUILDER)
+        for node in ast.parse(source).body
+        if isinstance(node, ast.FunctionDef) and node.name in selected
+    ]
+    assert {node.name for node in definitions} == selected
+    namespace = {"np": np, "pd": pd}
+    module = ast.Module(body=definitions, type_ignores=[])
+    exec(compile(ast.fix_missing_locations(module), str(BUILDER), "exec"), namespace)
+    return namespace
+
+
+@pytest.fixture
+def reviewer_candidates():
+    # Repeated vertex IDs across participants intentionally count separately.
+    values = {
+        "p1": [(0.5, 7, True), (0.6, 8, False), (0.4, 7, True), (0.5, 6, False)],
+        "p2": [(0.5, 7, True), (0.5, 5, False)],
+        "p3": [(0.5, 7, False)],
+        "p4": [(0.5, 7, False), (0.5, 6, True), (0.4, 7, True)],
+        "p5": [(0.5, 7, True)],
+        "p6": [(0.5, 5, False)],
+        "p7": [(0.5, 5, True)],
+        "p8": [(0.5, 7, True)],
+    }
+    return pd.DataFrame([
+        {"Participant": participant, "neuroid": index,
+         "NC Normalized R Fischer": r, "Average Num Features Agree Direction": agreement,
+         "Inside Saxe functional LTPJ": inside}
+        for participant, rows in values.items()
+        for index, (r, agreement, inside) in enumerate(rows)
+    ])
+
+
+def test_reviewer_sensitivity_order_fixed_cohort_and_partition(reviewer_table_helpers, reviewer_candidates):
+    baseline = ["p1", "p2", "p3", "p5", "p8"]
+    participants = [f"p{i}" for i in range(1, 9)]
+    sensitivity, _ = reviewer_table_helpers["build_reviewer_ltpj_tables"](
+        reviewer_candidates, baseline, participants
+    )
+    assert sensitivity.analysis.tolist() == [
+        "Original", "No participant exclusion", "Lower predictivity", "Higher predictivity",
+        "Lower agreement", "Higher agreement",
+    ]
+    assert sensitivity.nc_normalized_r_threshold.tolist() == [0.5, 0.5, 0.4, 0.6, 0.5, 0.5]
+    assert sensitivity.mean_direction_agreement_threshold.tolist() == [7, 7, 7, 7, 6, 8]
+    assert sensitivity.participant_count.tolist() == [5, 8, 5, 5, 5, 5]
+    assert sensitivity.candidate_count.tolist() == [9, 14, 9, 9, 9, 9]
+    assert sensitivity.loc[[0, 2, 3, 4, 5], "participants"].eq(";".join(baseline)).all()
+    assert sensitivity.loc[1, "participants"] == ";".join(participants)
+    assert sensitivity.well_predicted_count.tolist() == [8, 12, 9, 1, 8, 8]
+    assert sensitivity.aligned_count.tolist() == [6, 7, 7, 1, 7, 1]
+    assert sensitivity.aligned_ltpj_count.tolist() == [4, 4, 5, 0, 4, 0]
+    np.testing.assert_array_equal(
+        sensitivity.well_predicted_count,
+        sensitivity.aligned_count + sensitivity.well_predicted_nonaligned_count,
+    )
+    # Stricter agreement moves formerly aligned rows into the comparator.
+    assert sensitivity.loc[5, "well_predicted_nonaligned_count"] == 7
+    assert sensitivity.loc[5, "well_predicted_nonaligned_ltpj_count"] == 4
+
+
+def test_reviewer_participants_include_zero_alignment_and_pooled_total(reviewer_table_helpers, reviewer_candidates):
+    participants = [f"p{i}" for i in range(1, 9)]
+    _, table = reviewer_table_helpers["build_reviewer_ltpj_tables"](
+        reviewer_candidates, ["p1", "p2", "p3", "p5", "p8"], participants
+    )
+    assert table.participant.tolist() == [p.upper() for p in participants] + ["All eight (pooled)"]
+    assert table.row_type.tolist() == ["participant"] * 8 + ["pooled_total"]
+    pooled = table.iloc[-1]
+    for column in (
+        "candidate_count", "well_predicted_count", "aligned_count", "aligned_ltpj_count",
+        "well_predicted_nonaligned_count", "well_predicted_nonaligned_ltpj_count",
+    ):
+        assert pooled[column] == table.iloc[:8][column].sum()
+    assert pooled.candidate_count == len(reviewer_candidates)
+    assert pooled.aligned_ltpj_percent == pytest.approx(100 * 4 / 7)
+    p6 = table.loc[table.participant.eq("P6")].iloc[0]
+    assert p6.aligned_count == 0 and np.isnan(p6.aligned_ltpj_percent)
+    assert reviewer_table_helpers["reviewer_ltpj_fraction"](0, 0) == "—"
+    assert reviewer_table_helpers["reviewer_ltpj_fraction"](0, 1) == "0/1 (0.0%)"
+
+
+def test_reviewer_cell_displays_two_tables_and_saves_raw_csvs(tmp_path, reviewer_candidates):
+    marker = "ghost-ltpj-reviewer-tables-2026-11-09"
+    source = next(cell for cell in embedded_code_cells(BUILDER) if cell.startswith("# " + marker))
+    displayed = []
+    namespace = {
+        "np": np, "pd": pd, "REPO_ROOT": tmp_path,
+        "ghost": reviewer_candidates, "ANATOMY_PARTICIPANTS": ["p1", "p2", "p3", "p5", "p8"],
+        "PARTICIPANTS": [f"p{i}" for i in range(1, 9)],
+        "display": displayed.append,
+    }
+    exec(compile(source, "reviewer_ltpj_table_cell", "exec"), namespace)
+    assert len(displayed) == 2
+    directory = tmp_path / "analysis/figures"
+    sensitivity = pd.read_csv(directory / "ghost_ltpj_threshold_sensitivity.csv")
+    participants = pd.read_csv(directory / "ghost_ltpj_participant_counts.csv")
+    assert len(sensitivity) == 6 and len(participants) == 9
+    assert np.isnan(participants.loc[participants.participant.eq("P6"), "aligned_ltpj_percent"]).all()
+    assert participants.loc[participants.participant.eq("P6"), "aligned_count"].item() == 0
+    assert namespace["participant_display"].loc[
+        namespace["participant_display"].Participant.eq("P6"), "Aligned in LTPJ, n/N (%)"
+    ].item() == "—"
+    assert not list(directory.glob("*.png")) and not list(directory.glob("*.pdf"))

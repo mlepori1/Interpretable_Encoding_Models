@@ -474,11 +474,164 @@ than the complete eligible Ghost pool (29.0%). This provides an anatomical
 validation of the feature-defined population using a parcel that was never
 used during voxel selection.
 
-For completeness, including all eight participants instead of excluding the
-79.0%, rather than 80.3%, of the feature direction-aligned voxels fall inside
+For completeness, including all eight participants gives 79.0%, rather than
+80.3%, of the feature direction-aligned voxels falling inside
 the functional LTPJ parcel. We treat the parcel as a functional anatomical
 reference, not as evidence that these voxels were independently localized as
 theory-of-mind cortex in our participants.
+"""
+    ),
+    md(
+        r"""
+<!-- ghost-ltpj-reviewer-tables-2026-11-09 -->
+## Functional LTPJ: threshold sensitivity and participant counts
+
+The prediction and agreement thresholds are descriptive heuristics, not
+significance tests. NC-normalized (r=0.5) means half the estimated ceiling
+**correlation**, not half the explainable variance. Direction agreement is
+averaged across the five cross-validation folds.
+
+The first table keeps the original five-participant cohort fixed when changing
+either threshold; only the second row includes all eight participants. Both
+comparison groups are well predicted: aligned voxels meet the agreement
+threshold, and non-aligned voxels fall below it. Changing that threshold also
+changes the comparison group. Each fraction is the number inside functional
+LTPJ divided by the total in that voxel set. Counts pool participant–vertex
+observations, not unique vertices or participant-wise percentages.
+
+The second table reports all eight participants at the original thresholds,
+including participants with no aligned voxels. An em dash means the denominator
+is zero, not 0% overlap. The pooled result need not hold equally within every
+participant.
+"""
+    ),
+    code(
+        r"""
+# ghost-ltpj-reviewer-tables-2026-11-09
+def reviewer_ltpj_percent(inside, total):
+    return 100 * inside / total if total else np.nan
+
+
+def reviewer_ltpj_fraction(inside, total):
+    if not total:
+        return "—"
+    return f"{inside:,}/{total:,} ({reviewer_ltpj_percent(inside, total):.1f}%)"
+
+
+def reviewer_ltpj_counts(frame, prediction_threshold, agreement_threshold):
+    predicted = frame["NC Normalized R Fischer"].ge(prediction_threshold)
+    agreement = frame["Average Num Features Agree Direction"].ge(agreement_threshold)
+    aligned_mask = predicted & agreement
+    nonaligned_mask = predicted & ~agreement
+    aligned_frame = frame.loc[aligned_mask]
+    nonaligned_frame = frame.loc[nonaligned_mask]
+    aligned_inside = int(aligned_frame["Inside Saxe functional LTPJ"].sum())
+    nonaligned_inside = int(nonaligned_frame["Inside Saxe functional LTPJ"].sum())
+    assert int(predicted.sum()) == len(aligned_frame) + len(nonaligned_frame)
+    return {
+        "candidate_count": len(frame),
+        "well_predicted_count": int(predicted.sum()),
+        "aligned_count": len(aligned_frame),
+        "aligned_ltpj_count": aligned_inside,
+        "aligned_ltpj_percent": reviewer_ltpj_percent(aligned_inside, len(aligned_frame)),
+        "well_predicted_nonaligned_count": len(nonaligned_frame),
+        "well_predicted_nonaligned_ltpj_count": nonaligned_inside,
+        "well_predicted_nonaligned_ltpj_percent": reviewer_ltpj_percent(
+            nonaligned_inside, len(nonaligned_frame)
+        ),
+    }
+
+
+def build_reviewer_ltpj_tables(frame, baseline_participants, participants):
+    # Freeze this cohort once; do not reselect contributors at other thresholds.
+    baseline_participants = tuple(baseline_participants)
+    participants = tuple(participants)
+    specifications = [
+        ("Original", 0.5, 7, baseline_participants),
+        ("No participant exclusion", 0.5, 7, participants),
+        ("Lower predictivity", 0.4, 7, baseline_participants),
+        ("Higher predictivity", 0.6, 7, baseline_participants),
+        ("Lower agreement", 0.5, 6, baseline_participants),
+        ("Higher agreement", 0.5, 8, baseline_participants),
+    ]
+    sensitivity_rows = []
+    for analysis, prediction_threshold, agreement_threshold, cohort in specifications:
+        subset = frame.loc[frame["Participant"].isin(cohort)]
+        sensitivity_rows.append({
+            "analysis": analysis,
+            "nc_normalized_r_threshold": prediction_threshold,
+            "mean_direction_agreement_threshold": agreement_threshold,
+            "participants": ";".join(cohort),
+            "participant_count": len(cohort),
+            **reviewer_ltpj_counts(subset, prediction_threshold, agreement_threshold),
+        })
+    participant_rows = []
+    for participant in participants:
+        subset = frame.loc[frame["Participant"].eq(participant)]
+        participant_rows.append({
+            "participant": participant.upper(),
+            "row_type": "participant",
+            "nc_normalized_r_threshold": 0.5,
+            "mean_direction_agreement_threshold": 7,
+            **reviewer_ltpj_counts(subset, 0.5, 7),
+        })
+    participant_rows.append({
+        "participant": "All eight (pooled)",
+        "row_type": "pooled_total",
+        "nc_normalized_r_threshold": 0.5,
+        "mean_direction_agreement_threshold": 7,
+        **reviewer_ltpj_counts(frame.loc[frame["Participant"].isin(participants)], 0.5, 7),
+    })
+    return pd.DataFrame(sensitivity_rows), pd.DataFrame(participant_rows)
+
+
+ltpj_threshold_sensitivity, ltpj_participant_counts = build_reviewer_ltpj_tables(
+    ghost, ANATOMY_PARTICIPANTS, PARTICIPANTS
+)
+
+sensitivity_display = pd.DataFrame({
+    "Analysis": ltpj_threshold_sensitivity["analysis"],
+    "NC-normalized r ≥": ltpj_threshold_sensitivity["nc_normalized_r_threshold"],
+    "Mean agreement ≥ (of 10)": ltpj_threshold_sensitivity["mean_direction_agreement_threshold"],
+    "Participant cohort": ltpj_threshold_sensitivity["participants"].str.upper().str.replace(";", ", "),
+    "Aligned in LTPJ, n/N (%)": [
+        reviewer_ltpj_fraction(row.aligned_ltpj_count, row.aligned_count)
+        for row in ltpj_threshold_sensitivity.itertuples()
+    ],
+    "Well-predicted non-aligned in LTPJ, n/N (%)": [
+        reviewer_ltpj_fraction(row.well_predicted_nonaligned_ltpj_count, row.well_predicted_nonaligned_count)
+        for row in ltpj_threshold_sensitivity.itertuples()
+    ],
+})
+display(sensitivity_display.style.hide(axis="index").format({
+    "NC-normalized r ≥": "{:.1f}", "Mean agreement ≥ (of 10)": "{:.0f}",
+}))
+
+participant_display = pd.DataFrame({
+    "Participant": ltpj_participant_counts["participant"],
+    "Candidates": ltpj_participant_counts["candidate_count"],
+    "Well predicted": ltpj_participant_counts["well_predicted_count"],
+    "Aligned": ltpj_participant_counts["aligned_count"],
+    "Aligned in LTPJ, n/N (%)": [
+        reviewer_ltpj_fraction(row.aligned_ltpj_count, row.aligned_count)
+        for row in ltpj_participant_counts.itertuples()
+    ],
+    "Well-predicted non-aligned in LTPJ, n/N (%)": [
+        reviewer_ltpj_fraction(row.well_predicted_nonaligned_ltpj_count, row.well_predicted_nonaligned_count)
+        for row in ltpj_participant_counts.itertuples()
+    ],
+})
+display(participant_display.style.hide(axis="index"))
+
+reviewer_table_dir = REPO_ROOT / "analysis/figures"
+reviewer_table_dir.mkdir(parents=True, exist_ok=True)
+ltpj_threshold_sensitivity.to_csv(
+    reviewer_table_dir / "ghost_ltpj_threshold_sensitivity.csv", index=False, na_rep="NA"
+)
+ltpj_participant_counts.to_csv(
+    reviewer_table_dir / "ghost_ltpj_participant_counts.csv", index=False, na_rep="NA"
+)
+print("Saved raw counts and percentages: ghost_ltpj_threshold_sensitivity.csv and ghost_ltpj_participant_counts.csv")
 """
     ),
     code(
@@ -1076,6 +1229,11 @@ cells = [
         and cell.source.lstrip().startswith("## Draft response to the reviewer")
     )
 ]
+
+
+for cell in cells:
+    if "ghost-ltpj-reviewer-tables-2026-11-09" in cell.source.splitlines()[0]:
+        cell.metadata["tags"] = ["ghost-ltpj-reviewer-tables-2026-11-09"]
 
 
 notebook = nbf.v4.new_notebook(

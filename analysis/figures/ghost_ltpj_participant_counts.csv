@@ -1,0 +1,10 @@
+participant,row_type,nc_normalized_r_threshold,mean_direction_agreement_threshold,candidate_count,well_predicted_count,aligned_count,aligned_ltpj_count,aligned_ltpj_percent,well_predicted_nonaligned_count,well_predicted_nonaligned_ltpj_count,well_predicted_nonaligned_ltpj_percent
+P1,participant,0.5,7,652,87,58,51,87.93103448275862,29,12,41.37931034482759
+P2,participant,0.5,7,198,83,74,64,86.48648648648648,9,2,22.22222222222222
+P3,participant,0.5,7,85,12,9,0,0.0,3,0,0.0
+P4,participant,0.5,7,134,7,3,0,0.0,4,4,100.0
+P5,participant,0.5,7,185,36,12,4,33.333333333333336,24,2,8.333333333333334
+P6,participant,0.5,7,39,3,0,0,NA,3,0,0.0
+P7,participant,0.5,7,33,1,0,0,NA,1,1,100.0
+P8,participant,0.5,7,164,46,25,24,96.0,21,4,19.047619047619047
+All eight (pooled),pooled_total,0.5,7,1490,275,181,143,79.00552486187846,94,25,26.595744680851062
